@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -34,6 +35,11 @@ public class AudioRecorderActivity extends AppCompatActivity
 		implements PullTransport.OnAudioChunkPulledListener, MediaPlayer.OnCompletionListener {
 
 	private String filePath;
+
+	private String filePathProcess =
+			Environment.getExternalStorageDirectory().getPath()
+					+ "/"
+					+ Environment.DIRECTORY_MUSIC + "/audio_processed.wav";
 	private AudioSource source;
 	private AudioChannel channel;
 	private AudioSampleRate sampleRate;
@@ -285,6 +291,10 @@ public class AudioRecorderActivity extends AppCompatActivity
 			recorder = OmRecorder.wav(
 					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
 					new File(filePath));
+
+			recorder = OmRecorder.wav(
+					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
+					new File(filePathProcess));
 		}
 		recorder.resumeRecording();
 

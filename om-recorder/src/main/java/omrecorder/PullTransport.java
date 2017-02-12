@@ -215,16 +215,17 @@ public interface PullTransport {
 						firstSilenceMoment = 0;
 						noiseRecordedAfterFirstSilenceThreshold++;
 					} else {
-						if (firstSilenceMoment == 0)
+						if (firstSilenceMoment == 0) {
 							firstSilenceMoment = System.currentTimeMillis();
-
+						}
 						final long silenceTime = System.currentTimeMillis() - firstSilenceMoment;
 						if (firstSilenceMoment != 0 && silenceTime > this.silenceTimeThreshold) {
 							if (silenceTime > 1000) {
 								if (noiseRecordedAfterFirstSilenceThreshold >= 3) {
 									noiseRecordedAfterFirstSilenceThreshold = 0;
-									if (silenceListener != null)
+									if (silenceListener != null) {
 										postSilenceEvent(silenceListener, silenceTime);
+									}
 								}
 							}
 						} else {

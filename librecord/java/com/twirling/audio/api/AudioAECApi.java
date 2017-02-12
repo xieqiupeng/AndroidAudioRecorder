@@ -31,7 +31,7 @@ import java.nio.ByteOrder;
 /**
  * Contains vertex, normal and color data.
  */
-public class AudioProcessApi {
+public class AudioAECApi {
     AudioTrack audioplayer;
     private VoiceProcessing aecInst;
     //
