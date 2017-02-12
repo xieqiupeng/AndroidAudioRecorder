@@ -26,4 +26,5 @@ dependencies {
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
+    compile project(':librecord')
 }
