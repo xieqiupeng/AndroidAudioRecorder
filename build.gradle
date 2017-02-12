@@ -1,4 +1,15 @@
 buildscript {
+    ext {
+        //
+        setup = [compileSdk: 25,
+                 buildTools: "25.0.2",
+                 minSdk    : 19,
+                 targetSdk : 25,
+                 vcode     : 1,
+                 vname     : "1.0.0"]
+        //
+        versions = [supportLib: "25.1.0"]
+    }
     repositories {
         jcenter()
     }
@@ -10,6 +21,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven { url "https://jitpack.io" }
     }
 }
 

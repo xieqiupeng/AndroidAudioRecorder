@@ -1,3 +1,5 @@
 include ':app'
 include ':lib'
 include ':om-recorder'
+include ':libaudio'
+include ':librecord'
