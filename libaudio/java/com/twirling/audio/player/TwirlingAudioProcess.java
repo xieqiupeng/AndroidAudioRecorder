@@ -1,6 +1,6 @@
-package com.twirling.process.player;
+package com.twirling.audio.player;
 
-import com.twirling.process.AudioEngine;
+import com.twirling.audio.AudioEngine;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

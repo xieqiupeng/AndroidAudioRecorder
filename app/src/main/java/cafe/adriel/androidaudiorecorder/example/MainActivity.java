@@ -11,9 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.twirling.process.api.AudioProcessApi;
-import com.twirling.process.api.Constants;
-import com.twirling.process.utils.FileUtil;
+import com.twirling.audio.api.AudioProcessApi;
+import com.twirling.audio.api.Constants;
+import com.twirling.audio.utils.FileUtil;
 
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;

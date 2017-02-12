@@ -1,4 +1,4 @@
-package com.twirling.process.player;
+package com.twirling.audio.player;
 /*
 ** OpenMXPlayer - Freeware audio player library for Android
 ** Copyright (C) 2009 - 2014 Radu Motisan, radu.motisan@gmail.com
@@ -32,7 +32,7 @@ import android.media.MediaFormat;
 import android.util.Log;
 
 import com.orhanobut.logger.Logger;
-import com.twirling.process.AudioEngine;
+import com.twirling.audio.AudioEngine;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

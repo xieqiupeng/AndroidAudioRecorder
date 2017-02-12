@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.twirling.process.api;
+package com.twirling.audio.api;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
-import com.twirling.process.AudioEngine;
+import com.twirling.audio.AudioEngine;
 
 import java.io.File;
 import java.io.RandomAccessFile;
