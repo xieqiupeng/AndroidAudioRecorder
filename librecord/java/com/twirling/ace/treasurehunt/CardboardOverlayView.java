@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twirling.audio.treasurehunt;
+package com.twirling.ace.treasurehunt;
 
 import android.content.Context;
 import android.graphics.Color;

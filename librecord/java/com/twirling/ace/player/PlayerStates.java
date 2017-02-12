@@ -1,4 +1,4 @@
-package com.twirling.audio.player;
+package com.twirling.ace.player;
 
 /*
 ** OpenMXPlayer - Freeware audio player library for Android
@@ -42,7 +42,7 @@ public class PlayerStates {
      * @return <code>true</code> if ready, <code>false</code> otherwise
      */
     public synchronized boolean isReadyToPlay() {
-        return playerState == com.twirling.audio.player.PlayerStates.READY_TO_PLAY;
+        return playerState == PlayerStates.READY_TO_PLAY;
     }
 
     /**
@@ -51,7 +51,7 @@ public class PlayerStates {
      * @return <code>true</code> if playing, <code>false</code> otherwise
      */
     public synchronized boolean isPlaying() {
-        return playerState == com.twirling.audio.player.PlayerStates.PLAYING;
+        return playerState == PlayerStates.PLAYING;
     }
 
     /**
@@ -60,6 +60,6 @@ public class PlayerStates {
      * @return <code>true</code> if playing, <code>false</code> otherwise
      */
     public synchronized boolean isStopped() {
-        return playerState == com.twirling.audio.player.PlayerStates.STOPPED;
+        return playerState == PlayerStates.STOPPED;
     }
 }
