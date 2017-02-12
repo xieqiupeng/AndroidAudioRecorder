@@ -292,12 +292,11 @@ public class AudioRecorderActivity extends AppCompatActivity
 					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
 					new File(filePath));
 
-			recorder = OmRecorder.wav(
-					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
-					new File(filePathProcess));
+//			recorder = OmRecorder.wav(
+//					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
+//					new File(filePathProcess));
 		}
 		recorder.resumeRecording();
-
 		startTimer();
 	}
 
