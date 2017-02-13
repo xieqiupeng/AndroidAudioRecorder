@@ -16,16 +16,46 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-dependencies {
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile project(':lib')
-    compile project(':libaudio')
-//    compile 'com.github.adrielcafe:AndroidAudioRecorder:0.1.0'
-//    compile 'com.github.xieqiupeng:TwirlingAudioSDK:2.1.2'
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['java']
+//            resources.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            aidl.srcDirs = ['aidl']
+            renderscript.srcDirs = ['rs']
+            jni.srcDirs = [];
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+//    productFlavors {
+//        armv7 {
+//            ndk {
+//                abiFilter "armeabi-v7a"
+//            }
+//        }
+//        armv8 {
+//            ndk {
+//                abiFilter "armeabi-v7a"
+//            }
+//        }
+//        fat
+//    }
 }
 
 repositories {
-    maven { url "https://jitpack.io" }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile project(':lib')
+    compile project(':libaudio')
+    compile project(':librecord')
+//    compile 'com.github.adrielcafe:AndroidAudioRecorder:0.1.0'
+//    compile 'com.github.xieqiupeng:TwirlingAudioSDK:2.1.2'
 }

@@ -1,4 +1,4 @@
-package com.twirling.ace.player;
+package com.twirling.audioRun.player;
 
 /*
 ** OpenMXPlayer - Freeware audio player library for Android

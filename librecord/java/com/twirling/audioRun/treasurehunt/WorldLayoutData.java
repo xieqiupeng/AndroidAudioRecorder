@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.twirling.ace.treasurehunt;
+package com.twirling.audioRun.treasurehunt;
 
 /**
  * Contains vertex, normal and color data.
