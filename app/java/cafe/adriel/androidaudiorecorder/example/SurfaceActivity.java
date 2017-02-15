@@ -12,35 +12,33 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.twirling.audio.api.AudioProcessApi;
-import com.twirling.audioRun.api.AudioAECApi;
-import com.twirling.audioRun.api.Constants;
-import com.twirling.audioRun.utils.FileUtil;
+import com.twirling.audio.api.Constants;
+import com.twirling.audio.utils.FileUtil;
 
 import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
 
-public class MainActivity extends AppCompatActivity {
+public class SurfaceActivity extends AppCompatActivity {
 	private static final int REQUEST_RECORD_AUDIO = 0;
 	private static final String AUDIO_FILE_PATH =
 			Environment.getExternalStorageDirectory().getPath()
 					+ "/"
 					+ Environment.DIRECTORY_MUSIC + "/audio_recorded.wav";
 	private AudioProcessApi audioProcessApi;
-	private AudioAECApi audioACEApi;
+
 	private Thread audioThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_surface);
 
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setBackgroundDrawable(
 					new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
 		}
-
 		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
 		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 	}
@@ -59,32 +57,31 @@ public class MainActivity extends AppCompatActivity {
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
 		}
-		final String wavFilePathMic = "sdcard/music/audio_recorded.wav";
-		final String wavFilePathSpk = "sdcard/download/mono.wav";
-		audioThread = new Thread(
-				new Runnable() {
-					public void run() {
-						// Start spatial audio playback of SOUND_FILE at the model postion. The returned
-						//soundId handle is stored and allows for repositioning the sound object whenever
-						// the cube position changes.
-						Thread.currentThread().getName();
-						audioACEApi = new AudioAECApi();
-						audioACEApi.init();
-						try {
-							audioACEApi.LoadWavFile(wavFilePathMic, 0);
-							audioACEApi.LoadWavFile(wavFilePathSpk, 1);
-							audioACEApi.soundPlay();
-						} catch (Exception e) {
-							Log.w("", e.toString());
-						}
-					}
-				});
-		audioThread.start();
 	}
 
 	public void recordAudio(View v) {
+		play();
+		//
+		AndroidAudioRecorder.with(this)
+				// Required
+				.setFilePath(AUDIO_FILE_PATH)
+				.setColor(ContextCompat.getColor(this, R.color.recorder_bg))
+				.setRequestCode(REQUEST_RECORD_AUDIO)
+
+				// Optional
+				.setSource(AudioSource.MIC)
+				.setChannel(AudioChannel.MONO)
+				.setSampleRate(AudioSampleRate.HZ_44100)
+				.setAutoStart(true)
+				.setKeepDisplayOn(true)
+
+				// Start recording
+				.record();
+	}
+
+	public void play() {
 		Constants.SAMPLE_INDEX = 2;
-		final String wavFilePath = FileUtil.copyAssetFileToFiles(MainActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
+		final String wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
 		audioThread = new Thread(
 				new Runnable() {
 					public void run() {
@@ -103,22 +100,5 @@ public class MainActivity extends AppCompatActivity {
 					}
 				});
 		audioThread.start();
-		//
-		AndroidAudioRecorder.with(this)
-				// Required
-				.setFilePath(AUDIO_FILE_PATH)
-				.setColor(ContextCompat.getColor(this, R.color.recorder_bg))
-				.setRequestCode(REQUEST_RECORD_AUDIO)
-
-				// Optional
-				.setSource(AudioSource.MIC)
-				.setChannel(AudioChannel.STEREO)
-				.setSampleRate(AudioSampleRate.HZ_48000)
-				.setAutoStart(true)
-				.setKeepDisplayOn(true)
-
-				// Start recording
-				.record();
 	}
-
 }

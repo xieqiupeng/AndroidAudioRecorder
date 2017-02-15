@@ -57,6 +57,6 @@ dependencies {
     compile 'com.orhanobut:logger:1.11'
     //
     //
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.2.3'
+//    compile 'io.reactivex:rxandroid:1.2.1'
+//    compile 'io.reactivex:rxjava:1.2.3'
 }

@@ -21,7 +21,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
-import com.twirling.audioRun.VoiceProcessing;
+import com.twirling.audio.VoiceProcessing;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -54,6 +54,7 @@ public class AudioAECApi {
         aecInst = new VoiceProcessing();
         /* -----------------------------------------
              aecInst:  Init function.
+
          ------------------------------------------*/
         instance = aecInst.aecInit(frameSize, iInChan,sampleRate, 0, false);
 
@@ -69,6 +70,7 @@ public class AudioAECApi {
         float spkClipThd = 1.0f;
         float maxCoupling = 4.0f;
         aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
+
     }
 
     public void setMetadata(float[] metadataP) {
@@ -95,6 +97,7 @@ public class AudioAECApi {
                 }
                 /* -----------------------------------------
                    audioEngineProcess: Process function.
+
                  ------------------------------------------*/
                 aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
                 for (i = 0; i < frameSize * iOutChan; i++) {

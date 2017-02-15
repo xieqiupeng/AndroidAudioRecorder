@@ -69,7 +69,6 @@ public interface AudioChunk {
 
   final class Shorts implements AudioChunk {
     //number denotes the bytes read in @code buffer
-
     private static final short SILENCE_THRESHOLD = 2700;
     private static final double REFERENCE = 0.6;
     final short[] shorts;

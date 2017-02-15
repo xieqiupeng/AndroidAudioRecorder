@@ -117,11 +117,13 @@ public interface PullTransport {
 	final class Default extends AbstractPullTransport {
 
 		private final WriteAction writeAction;
+		private final AudioChunk.Shorts audioChunk;
 
 		public Default(AudioSource audioRecordSource,
 		               OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
+			audioChunk = new AudioChunk.Shorts(new short[audioRecordSource.minimumBufferSize()]);
 		}
 
 		public Default(AudioSource audioRecordSource, WriteAction writeAction) {
@@ -141,9 +143,12 @@ public interface PullTransport {
 		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
 		                            OutputStream outputStream) throws IOException {
 			while (audioRecordSource.isEnableToBePulled()) {
-				AudioChunk audioChunk = new AudioChunk.Bytes(new byte[minimumBufferSize]);
-				if (AudioRecord.ERROR_INVALID_OPERATION != audioRecord.read(audioChunk.toBytes(), 0,
-						minimumBufferSize)) {
+//				AudioChunk audioChunk = new AudioChunk.Bytes(new byte[minimumBufferSize]);
+				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
+				// TODO
+				audioChunk.shorts;
+				//
+				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
 					if (onAudioChunkPulledListener != null) {
 						postPullEvent(audioChunk);
 					}

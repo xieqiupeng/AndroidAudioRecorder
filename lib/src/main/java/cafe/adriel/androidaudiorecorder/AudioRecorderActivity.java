@@ -32,7 +32,7 @@ import omrecorder.PullTransport;
 import omrecorder.Recorder;
 
 public class AudioRecorderActivity extends AppCompatActivity
-		implements PullTransport.OnAudioChunkPulledListener, MediaPlayer.OnCompletionListener {
+		implements MediaPlayer.OnCompletionListener {
 
 	private String filePath;
 
@@ -204,11 +204,6 @@ public class AudioRecorderActivity extends AppCompatActivity
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onAudioChunkPulled(AudioChunk audioChunk) {
-		float amplitude = isRecording ? (float) audioChunk.maxAmplitude() : 0f;
-		visualizerHandler.onDataReceived(amplitude);
-	}
 
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
@@ -287,14 +282,17 @@ public class AudioRecorderActivity extends AppCompatActivity
 
 		if (recorder == null) {
 			timerView.setText("00:00:00");
-
-			recorder = OmRecorder.wav(
-					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
-					new File(filePath));
-
-//			recorder = OmRecorder.wav(
-//					new PullTransport.Default(Util.getMic(source, channel, sampleRate), AudioRecorderActivity.this),
-//					new File(filePathProcess));
+			// TODO
+			PullTransport pullTransport = new PullTransport.Default(
+					Util.getMic(source, channel, sampleRate),
+					new PullTransport.OnAudioChunkPulledListener() {
+						@Override
+						public void onAudioChunkPulled(AudioChunk audioChunk) {
+							float amplitude = isRecording ? (float) audioChunk.maxAmplitude() : 0f;
+							visualizerHandler.onDataReceived(amplitude);
+						}
+					});
+			recorder = OmRecorder.wav(pullTransport, new File(filePath));
 		}
 		recorder.resumeRecording();
 		startTimer();

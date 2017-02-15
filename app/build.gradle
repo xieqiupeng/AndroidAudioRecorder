@@ -57,5 +57,4 @@ dependencies {
     compile project(':libaudio')
     compile project(':librecord')
 //    compile 'com.github.adrielcafe:AndroidAudioRecorder:0.1.0'
-//    compile 'com.github.xieqiupeng:TwirlingAudioSDK:2.1.2'
 }
