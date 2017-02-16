@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -20,7 +20,7 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.kailashdabhi:om-recorder:1.1.0'
+//    compile 'com.kailashdabhi:om-recorder:1.1.0'
     compile 'com.cleveroad:audiovisualization:1.0.0'
-//    compile project(':om-recorder')
+    compile project(':om-recorder')
 }

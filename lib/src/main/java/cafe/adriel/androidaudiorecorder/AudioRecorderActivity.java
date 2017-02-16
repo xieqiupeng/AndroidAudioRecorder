@@ -279,7 +279,6 @@ public class AudioRecorderActivity extends AppCompatActivity
 
 		visualizerHandler = new VisualizerHandler();
 		visualizerView.linkTo(visualizerHandler);
-
 		if (recorder == null) {
 			timerView.setText("00:00:00");
 			// TODO

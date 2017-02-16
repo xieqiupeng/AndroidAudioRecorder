@@ -16,9 +16,15 @@
 package omrecorder;
 
 import android.media.AudioRecord;
+import android.util.Log;
+
+import com.twirling.audio.model.Sounddata1;
+import com.twirling.audioRun.api.AudioProcessApi;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import omrecorder.model.Sounddata2;
 
 /**
  * A PullTransport is a object who pulls the data from {@code AudioSource} and transport it to
@@ -118,12 +124,16 @@ public interface PullTransport {
 
 		private final WriteAction writeAction;
 		private final AudioChunk.Shorts audioChunk;
+		private Sounddata2 sounddata2;
 
 		public Default(AudioSource audioRecordSource,
 		               OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
 			audioChunk = new AudioChunk.Shorts(new short[audioRecordSource.minimumBufferSize()]);
+			Log.w("xqp", audioChunk.shorts.length + "");
+			sounddata2 = Sounddata2.getInstance();
+
 		}
 
 		public Default(AudioSource audioRecordSource, WriteAction writeAction) {
@@ -145,10 +155,26 @@ public interface PullTransport {
 			while (audioRecordSource.isEnableToBePulled()) {
 //				AudioChunk audioChunk = new AudioChunk.Bytes(new byte[minimumBufferSize]);
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
-				// TODO
-				audioChunk.shorts;
+				sounddata2.setShorts(audioChunk.shorts);
+				// toDO 处理aec
+				new Thread(
+						new Runnable() {
+							public void run() {
+								AudioProcessApi audioAecApi = new AudioProcessApi();
+								audioAecApi.init();
+								if (Sounddata1.getInstance().isEmpty() || Sounddata2.getInstance().isEmpty()) {
+
+								}
+								Log.w("123", Sounddata1.getInstance().shorts.length + " " + Sounddata2.getInstance().shorts.length);
+								try {
+									audioAecApi.saveFile(Sounddata1.getInstance().shorts, Sounddata2.getInstance().shorts);
+								} catch (Exception e) {
+									Log.w("", e.toString());
+								}
+							}
+						}).start();
 				//
-				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
+				if (AudioRecord.ERROR_INVALID_OPERATION != sounddata2.numberOfShortsRead) {
 					if (onAudioChunkPulledListener != null) {
 						postPullEvent(audioChunk);
 					}
