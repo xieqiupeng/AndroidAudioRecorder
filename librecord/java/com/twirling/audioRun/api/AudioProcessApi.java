@@ -80,93 +80,41 @@ public class AudioProcessApi {
 
 	}
 
-	public void soundPlay() {
-		audioplayer.play();
-		int pos = 0;
-		int i;
-		int n;
-		int tmp32;
-		short[] sounddataFrame = new short[frameSize * iOutChan];
-		float[] audioOutput = new float[frameSize * iOutChan];
-		float[] audioInputMic = new float[frameSize * iInChan];
-		float[] audioInputSpk = new float[frameSize * iInChan];
-		//
-		datasize = Math.min(datasizeList[0], datasizeList[1]);
-		while (stopFlag != 1) {
-			if (audioplayer != null) {
-				for (i = 0; i < frameSize * iInChan; i++) {
-					audioInputMic[i] = (float) sounddata0[pos + i] / 32768.0f;
-					audioInputSpk[i] = (float) sounddata1[pos + i] / 32768.0f;
-				}
-				/* -----------------------------------------
-				   audioEngineProcess: Process function.
-                 ------------------------------------------*/
-				for (i = 0; i < frameSize * iOutChan; i++) {
-					audioOutput[i] = audioInputMic[i];
-				}
-				if(enableAec == true) {
-					aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
-					aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
-					for (i = 0; i < frameSize * iOutChan; i++) {
-						audioOutput[i] = audioInputMic[i];
-					}
-				}
-				//
-				for (i = 0; i < frameSize * iOutChan; i++) {
-					tmp32 = (int) (audioOutput[i] * 32768.0f);
-					if (tmp32 > 32767)
-						tmp32 = 32767;
-					else if (tmp32 < -32768)
-						tmp32 = -32768;
-					sounddataFrame[i] = (short) tmp32;
-				}
-				//
-				audioplayer.write(sounddataFrame, 0, frameSize * iOutChan);
-				pos += frameSize * iInChan;
-				if (pos >= datasize / 2 - frameSize * iInChan) {
-					pos = 0;
-				}
-			}
-		}
-	}
 
 	public void doProcess(short[] mic, short[] spk) {
 		int i;
 		int tmp32;
-		short[] sounddataFrame = new short[frameSize * iOutChan];
 		float[] audioOutput = new float[frameSize * iOutChan];
 		float[] audioInputMic = new float[frameSize * iInChan];
 		float[] audioInputSpk = new float[frameSize * iInChan];
 		//
-
-
-			for (i = 0; i < frameSize * iInChan; i++) {
-				audioInputMic[i] = (float) mic[i] / 32768.0f;
-				audioInputSpk[i] = (float) spk[i] / 32768.0f;
-			}
+		for (i = 0; i < frameSize * iInChan; i++) {
+			audioInputMic[i] = (float) mic[i] / 32768.0f;
+			audioInputSpk[i] = (float) spk[i] / 32768.0f;
+		}
 			    /* -----------------------------------------
-                   audioEngineProcess: Process function.
+		           audioEngineProcess: Process function.
                  ------------------------------------------*/
-			for (i = 0; i < frameSize * iOutChan; i++) {
-				audioOutput[i] = audioInputMic[i];
-			}
-			enableNS = true;
-			aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
+		for (i = 0; i < frameSize * iOutChan; i++) {
+			audioOutput[i] = audioInputMic[i];
+		}
+		if (enableAec == true) {
+			//aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
 			aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
 			for (i = 0; i < frameSize * iOutChan; i++) {
 				audioOutput[i] = audioInputMic[i];
 			}
-			//
-			for (i = 0; i < frameSize * iOutChan; i++) {
-				tmp32 = (int) (audioOutput[i] * 32768.0f);
-				if (tmp32 > 32767)
-					tmp32 = 32767;
-				else if (tmp32 < -32768)
-					tmp32 = -32768;
-				mic[i] = (short) tmp32;
-			}
-			// TODO
-
+		}
+		//
+		for (i = 0; i < frameSize * iOutChan; i++) {
+			tmp32 = (int) (audioOutput[i] * 32768.0f);
+			if (tmp32 > 32767)
+				tmp32 = 32767;
+			else if (tmp32 < -32768)
+				tmp32 = -32768;
+			mic[i] = (short) tmp32;
+		}
+		// TODO
 	}
 
 	public void stopPlay() {
@@ -184,6 +132,10 @@ public class AudioProcessApi {
 				aecInst.aecRelease(instance);
 			}
 		}
+	}
+
+	public void stopProcess() {
+		aecInst.aecRelease(instance);
 	}
 
 	public boolean LoadWavFile(String filenamein, int channelIndex) {

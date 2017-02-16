@@ -127,6 +127,11 @@ public interface PullTransport {
 		private short[] aecInputSpk = new short[FRAMESIZE / 2];
 		private int recordFrameSize = 0;
 		private int recordFrameNum = 0;
+		private AudioProcessApi audioAecApi;
+
+		public void stopProcess() {
+			audioAecApi.stopProcess();
+		}
 
 		public Default(AudioSource audioRecordSource,
 		               OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction) {
@@ -138,6 +143,9 @@ public interface PullTransport {
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
 			Log.w("xqp", audioChunk.shorts.length + "");
 
+			// 处理aec
+			audioAecApi = new AudioProcessApi();
+			audioAecApi.init();
 		}
 
 		public Default(AudioSource audioRecordSource, WriteAction writeAction) {
@@ -158,7 +166,7 @@ public interface PullTransport {
 		                            OutputStream outputStream) throws IOException {
 			while (audioRecordSource.isEnableToBePulled()) {
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
-
+				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
 				//
 				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
 					if (onAudioChunkPulledListener != null) {
@@ -166,9 +174,7 @@ public interface PullTransport {
 					}
 
 				}
-				// 处理aec
-				AudioProcessApi audioAecApi = new AudioProcessApi();
-				audioAecApi.init();
+
 				if (Sounddata1.getInstance().isEmpty()) {
 					return;
 				}
@@ -179,11 +185,11 @@ public interface PullTransport {
 					for (int i = 0; i < recordFrameNum; i++) {
 						Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
-							aecInputMic[i] = audioChunk.shorts[n++];
+							aecInputMic[j] = audioChunk.shorts[n++];
 						}
 						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
-							audioChunk.shorts[n2++] = aecInputMic[i];
+							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
 
 					}

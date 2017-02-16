@@ -64,6 +64,7 @@ public class AudioRecorderActivity extends AppCompatActivity
 	private ImageButton restartView;
 	private ImageButton recordView;
 	private ImageButton playView;
+	private PullTransport.Default pullTransport;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +174,7 @@ public class AudioRecorderActivity extends AppCompatActivity
 		setResult(RESULT_CANCELED);
 		try {
 			visualizerView.release();
+			pullTransport.stopProcess();
 		} catch (Exception e) {
 		}
 		super.onDestroy();
@@ -282,7 +284,7 @@ public class AudioRecorderActivity extends AppCompatActivity
 		if (recorder == null) {
 			timerView.setText("00:00:00");
 			// TODO
-			PullTransport pullTransport = new PullTransport.Default(
+			pullTransport = new PullTransport.Default(
 					Util.getMic(source, channel, sampleRate),
 					new PullTransport.OnAudioChunkPulledListener() {
 						@Override
