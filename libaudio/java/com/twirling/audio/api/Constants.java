@@ -56,5 +56,5 @@ public class Constants {
     /**
      * Equal or less than 512 now.
      */
-    public static final int FRAME_SIZE = 512;
+    public static final int FRAME_SIZE = 256;
 }

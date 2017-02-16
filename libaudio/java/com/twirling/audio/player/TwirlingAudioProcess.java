@@ -97,7 +97,7 @@ public class TwirlingAudioProcess {
         fulldata.put(chunk);
         fulldata.order(ByteOrder.LITTLE_ENDIAN);
 
-        // ok now we can create an array of shorts (16 bit data) and load it
+        // ok now we can create an array of spkCircleBuf (16 bit data) and load it
         // we are stereo 16 bit, so each sample is 2 bytes
         short[] sounddata = new short[chunkSize / 2];
 

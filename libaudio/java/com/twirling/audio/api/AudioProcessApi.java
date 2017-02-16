@@ -21,7 +21,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
-import com.twirling.audio.AudioEngine;
 import com.twirling.audio.model.Sounddata1;
 
 import java.io.File;
@@ -34,7 +33,6 @@ import java.nio.ByteOrder;
  */
 public class AudioProcessApi {
 
-	private AudioEngine audioEngine;
 	private AudioTrack audioplayer;
 	//
 	private int frameSize = Constants.FRAME_SIZE;
@@ -43,70 +41,21 @@ public class AudioProcessApi {
 	private int iInChan = Constants.CHANNEL_NUM[Constants.SAMPLE_INDEX];
 	//
 	private short[] sounddata;
-	private float[] metadata;
+
 	private int datasize;
 	//
 	private long instance = 0;
-	private int iOutChan = 2;
-	private float azi;
-	private float elv;
-	private float raw;
+	private int iOutChan = iInChan;
+
 	private int stopFlag = 0;
 	int pos = 0;
 
 	public void init() {
-		if (profileID != 1 && profileID != 5 && profileID != 11 && profileID != 13) {
-			Log.i("Audio", "profileID: " + profileID + " is not supported");
-			return;
-		}
-		audioEngine = new AudioEngine();
-	    /* -----------------------------------------
-             audioInit:  Init function.
-             profileID:
-             1:  B format (wyzx sn3d) to binaural
-             5:  5.1 to binaural
-             11: objects to binaural
-             13: stereo to binaural
-             FrameLength:
-             Equal or less than 512.
-             Nchannels:
-             Input audio channels. 1 -- 128
-             SAMPLE_RATE:
-             Must be 44100 now.
-         ------------------------------------------*/
-		instance = audioEngine.audioInit(profileID, frameSize, iInChan, sampleRate, false);
 
-       /* -----------------------------------------
-             audioEngineSet: Config parameter setting function.
-             reverbOn:
-             Flag of turning on reverb, default false.
-             reverbLevel:
-             Level of reverb, 0.0 -- 1.0.
-             virtualSpk:
-             Flag of turning on virtual speaker mode, default false.
-             dycOn:
-             Flag of turning on dynamic range control, default false.
-             dycMaxValue:
-             Max input data value of dynamic range control.
-         ------------------------------------------*/
-//        audioEngine.audioSet(instance, false, 0, false, false, 1.0f);
-		audioEngine.audioSet(instance, false, 0, false, true, 1.0f);
-//        audioEngine.audioSet(instance, true, 0.1f, false, true, 1.0f);
-//
-		float angleFactor = (float) (Math.PI / 180);
-		metadata = new float[3 * iInChan];
-		for (int i = 0; i < iInChan; i += 3) {
-			metadata[i] = 2;
-			metadata[i + 1] = 0;
-			metadata[i + 2] = 0;
-		}
 	}
 
 	public void setMetadata(float[] metadataP) {
-		elv = metadataP[0];
-		azi = metadataP[1];
-		raw = metadataP[2];
-//        Log.w("set", azi + "  " + elv + "  " + raw);
+
 	}
 
 	public void soundPlay() {
@@ -114,44 +63,18 @@ public class AudioProcessApi {
 		int i;
 		int n;
 		short[] sounddataFrame = new short[frameSize * iOutChan];
-		float[] binauralOutput = new float[frameSize * iOutChan];
-		float[] audioInput = new float[frameSize * iInChan];
 		//
 		while (stopFlag != 1) {
 			if (audioplayer != null) {
 				for (i = 0; i < frameSize * iInChan; i++) {
-					audioInput[i] = (float) sounddata[pos + i] / 32768.0f;
+					sounddataFrame[i] = sounddata[pos + i];
 				}
-                /* -----------------------------------------
-                   audioEngineProcess: Process function.
-                   heading:
-                     Heading angle of head in RADIAN measure, -PI -- PI, positive when head to left.
-                   pitch:
-                     Pitch angle of head in RADIAN measure, -PI -- PI, positive when head down.
-                   bank:
-                     Bank angle of head in RADIAN measure, -PI -- PI, positive when head to right.
-                   objectInput:
-                     interlaced multichannel input audio data buffer.Data in this buffer will not be modified during processing.
-                   binauralOutput:
-                     interlaced binaural output audio data buffer.
-                   metaDataFrame: (only necessary for profile 11)
-                     object audio position metadata buffer. The buffer length is 3*objectNumber.
-                   Format:
-                     r1, azi1, elv1, r2, azi2, elv2, ...
-                   where:
-                     ri is distance of object i;
-                     azii is azimuth angle of object i;
-                     elvi is elevation angle of object i.
-                 ------------------------------------------*/
-				audioEngine.audioProcess(instance, azi, elv, 0, audioInput, binauralOutput, metadata);
-				//
-				for (i = 0; i < frameSize * iOutChan; i++) {
-					sounddataFrame[i] = (short) (binauralOutput[i] * 32768.0f);
-				}
-				Sounddata1.getInstance().setShorts(sounddataFrame);
+				Sounddata1.getInstance().setSpkCircleBuf(sounddataFrame);
+
 				//  FileUtil.writeFileFromShort(sounddataFrame);
 				//
-				audioplayer.write(Sounddata1.getInstance().shorts, 0, frameSize * iOutChan);
+
+				audioplayer.write(sounddataFrame, 0, frameSize * iOutChan);
 				pos += frameSize * iInChan;
 				if (pos >= datasize / 2 - frameSize * iInChan) {
 					pos = 0;
@@ -168,11 +91,7 @@ public class AudioProcessApi {
 				audioplayer.stop();
 				audioplayer.release();
 				audioplayer = null;
-                /* -----------------------------------------
-                *  audioEngine.Release(): Release function.
-                *  -----------------------------------------
-                * */
-				audioEngine.audioRelease(instance);
+
 			}
 		}
 	}
@@ -259,7 +178,7 @@ public class AudioProcessApi {
 				fulldata.put(data);
 				fulldata.order(ByteOrder.LITTLE_ENDIAN);
 
-				// ok now we can create an array of shorts (16 bit data) and load it
+				// ok now we can create an array of spkCircleBuf (16 bit data) and load it
 				// we are stereo 16 bit, so each sample is 2 bytes
 				sounddata = new short[datasize / 2];
 
@@ -271,17 +190,17 @@ public class AudioProcessApi {
 				}
 
 				// "frames" are two full samples (Because of stereo), so datasize/4
-				int totalnumberframes = datasize / 4;
+				int totalnumberframes = datasize / 2;
 
 				// create the audio track, load it, play it
 				//audioplayer = new AudioTrack(AudioManager.STREAM_MUSIC,44100,AudioFormat.CHANNEL_OUT_STEREO,AudioFormat.ENCODING_PCM_16BIT,datasize,AudioTrack.MODE_STATIC);
 				int minBufSize = AudioTrack.getMinBufferSize(sampleRate,
-						AudioFormat.CHANNEL_OUT_STEREO,
+						AudioFormat.CHANNEL_OUT_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);
 				Log.i("buffersize ", "buffersize = " + minBufSize);
 				audioplayer = new AudioTrack(AudioManager.STREAM_MUSIC,
 						sampleRate,
-						AudioFormat.CHANNEL_OUT_STEREO,
+						AudioFormat.CHANNEL_OUT_MONO,
 						AudioFormat.ENCODING_PCM_16BIT,
 						minBufSize,
 						AudioTrack.MODE_STREAM);

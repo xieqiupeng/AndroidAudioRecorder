@@ -24,8 +24,6 @@ import com.twirling.audioRun.api.AudioProcessApi;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import omrecorder.model.Sounddata2;
-
 /**
  * A PullTransport is a object who pulls the data from {@code AudioSource} and transport it to
  * OutputStream
@@ -124,15 +122,21 @@ public interface PullTransport {
 
 		private final WriteAction writeAction;
 		private final AudioChunk.Shorts audioChunk;
-		private Sounddata2 sounddata2;
+		private final int FRAMESIZE = 512;
+		private short[] aecInputMic = new short[FRAMESIZE / 2];
+		private short[] aecInputSpk = new short[FRAMESIZE / 2];
+		private int recordFrameSize = 0;
+		private int recordFrameNum = 0;
 
 		public Default(AudioSource audioRecordSource,
 		               OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
-			audioChunk = new AudioChunk.Shorts(new short[audioRecordSource.minimumBufferSize()]);
+			recordFrameSize = audioRecordSource.minimumBufferSize();
+			recordFrameNum = (int) (Math.ceil((float) recordFrameSize / FRAMESIZE)); //check
+			recordFrameSize = recordFrameNum * FRAMESIZE;
+			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
 			Log.w("xqp", audioChunk.shorts.length + "");
-			sounddata2 = Sounddata2.getInstance();
 
 		}
 
@@ -153,32 +157,40 @@ public interface PullTransport {
 		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
 		                            OutputStream outputStream) throws IOException {
 			while (audioRecordSource.isEnableToBePulled()) {
-//				AudioChunk audioChunk = new AudioChunk.Bytes(new byte[minimumBufferSize]);
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
-				sounddata2.setShorts(audioChunk.shorts);
-				// toDO 处理aec
-				new Thread(
-						new Runnable() {
-							public void run() {
-								AudioProcessApi audioAecApi = new AudioProcessApi();
-								audioAecApi.init();
-								if (Sounddata1.getInstance().isEmpty() || Sounddata2.getInstance().isEmpty()) {
 
-								}
-								Log.w("123", Sounddata1.getInstance().shorts.length + " " + Sounddata2.getInstance().shorts.length);
-								try {
-									audioAecApi.saveFile(Sounddata1.getInstance().shorts, Sounddata2.getInstance().shorts);
-								} catch (Exception e) {
-									Log.w("", e.toString());
-								}
-							}
-						}).start();
 				//
-				if (AudioRecord.ERROR_INVALID_OPERATION != sounddata2.numberOfShortsRead) {
+				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
 					if (onAudioChunkPulledListener != null) {
 						postPullEvent(audioChunk);
 					}
+
+				}
+				// 处理aec
+				AudioProcessApi audioAecApi = new AudioProcessApi();
+				audioAecApi.init();
+				if (Sounddata1.getInstance().isEmpty()) {
+					return;
+				}
+				Log.w("123", Sounddata1.getInstance().spkCircleBuf.length + "");
+				try {
+					int n = 0;
+					int n2 = 0;
+					for (int i = 0; i < recordFrameNum; i++) {
+						Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
+						for (int j = 0; j < FRAMESIZE / 2; j++) {
+							aecInputMic[i] = audioChunk.shorts[n++];
+						}
+						audioAecApi.doProcess(aecInputMic, aecInputSpk);
+						for (int j = 0; j < FRAMESIZE / 2; j++) {
+							audioChunk.shorts[n2++] = aecInputMic[i];
+						}
+
+					}
 					writeAction.execute(audioChunk.toBytes(), outputStream);
+
+				} catch (Exception e) {
+					Log.w("", e.toString());
 				}
 			}
 		}

@@ -22,9 +22,6 @@ import android.media.AudioTrack;
 import android.util.Log;
 
 import com.twirling.audio.VoiceProcessing;
-import com.twirling.libaec.api.Constants;
-import com.twirling.libaec.api.FileUtil;
-import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -38,9 +35,9 @@ public class AudioProcessApi {
 	AudioTrack audioplayer;
 	private VoiceProcessing aecInst;
 	//
-	int frameSize = com.twirling.libaec.api.Constants.FRAME_SIZE;
-	int sampleRate = com.twirling.libaec.api.Constants.SAMPLE_RATE[com.twirling.libaec.api.Constants.SAMPLE_INDEX];
-	int iInChan = com.twirling.libaec.api.Constants.CHANNEL_NUM[Constants.SAMPLE_INDEX];
+	int frameSize = Constants.FRAME_SIZE;
+	int sampleRate = Constants.SAMPLE_RATE[Constants.SAMPLE_INDEX];
+	int iInChan = 1;
 	//
 	short[] sounddata0; //mic
 
@@ -52,9 +49,10 @@ public class AudioProcessApi {
 	int iOutChan = iInChan;
 	int stopFlag = 0;
 
+	boolean enableAec = false;
 	boolean enableRes = true;
 	float resLevel = 0.5f;
-	boolean enableNS = false;
+	boolean enableNS = true;
 	float nsDB = -10.0f;
 	boolean enableSpkClip = false;
 	float spkClipThd = 1.0f;
@@ -106,14 +104,9 @@ public class AudioProcessApi {
 				for (i = 0; i < frameSize * iOutChan; i++) {
 					audioOutput[i] = audioInputMic[i];
 				}
-				if (SurfaceModel.getInstance().isAnsTurnOn()) {
-					enableNS = true;
-				} else {
-					enableNS = false;
-				}
-				aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
-				aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
-				if (SurfaceModel.getInstance().isAecTurnOn()) {
+				if(enableAec == true) {
+					aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
+					aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
 					for (i = 0; i < frameSize * iOutChan; i++) {
 						audioOutput[i] = audioInputMic[i];
 					}
@@ -137,8 +130,7 @@ public class AudioProcessApi {
 		}
 	}
 
-	public void saveFile(short[] sounddata0, short[] sounddata1) {
-		int pos = 0;
+	public void doProcess(short[] mic, short[] spk) {
 		int i;
 		int tmp32;
 		short[] sounddataFrame = new short[frameSize * iOutChan];
@@ -146,29 +138,23 @@ public class AudioProcessApi {
 		float[] audioInputMic = new float[frameSize * iInChan];
 		float[] audioInputSpk = new float[frameSize * iInChan];
 		//
-		datasize = Math.min(datasizeList[0], datasizeList[1]);
-		while (pos < datasize / 2 - frameSize * iInChan) {
+
+
 			for (i = 0; i < frameSize * iInChan; i++) {
-				audioInputMic[i] = (float) sounddata0[pos + i] / 32768.0f;
-				audioInputSpk[i] = (float) sounddata1[pos + i] / 32768.0f;
+				audioInputMic[i] = (float) mic[i] / 32768.0f;
+				audioInputSpk[i] = (float) spk[i] / 32768.0f;
 			}
-	            /* -----------------------------------------
+			    /* -----------------------------------------
                    audioEngineProcess: Process function.
                  ------------------------------------------*/
 			for (i = 0; i < frameSize * iOutChan; i++) {
 				audioOutput[i] = audioInputMic[i];
 			}
-			if (SurfaceModel.getInstance().isAnsTurnOn()) {
-				enableNS = true;
-			} else {
-				enableNS = false;
-			}
+			enableNS = true;
 			aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
 			aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
-			if (SurfaceModel.getInstance().isAecTurnOn()) {
-				for (i = 0; i < frameSize * iOutChan; i++) {
-					audioOutput[i] = audioInputMic[i];
-				}
+			for (i = 0; i < frameSize * iOutChan; i++) {
+				audioOutput[i] = audioInputMic[i];
 			}
 			//
 			for (i = 0; i < frameSize * iOutChan; i++) {
@@ -177,13 +163,10 @@ public class AudioProcessApi {
 					tmp32 = 32767;
 				else if (tmp32 < -32768)
 					tmp32 = -32768;
-				sounddataFrame[i] = (short) tmp32;
+				mic[i] = (short) tmp32;
 			}
 			// TODO
-			Log.i("pos", pos + "   " + sounddataFrame.length);
-			FileUtil.writeFileFromShort(sounddataFrame);
-			pos += frameSize * iInChan;
-		}
+
 	}
 
 	public void stopPlay() {
