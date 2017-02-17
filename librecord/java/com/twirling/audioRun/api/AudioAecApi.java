@@ -24,16 +24,16 @@ import com.twirling.audio.VoiceProcessing;
 public class AudioAecApi {
 	//
 	private VoiceProcessing aecInst;
-	int frameSize = Constants.FRAME_SIZE;
-	int sampleRate = Constants.SAMPLE_RATE[Constants.SAMPLE_INDEX];
-	int iInChan = 1;
-	int iOutChan = 1;
-	long instance = 0;
-	boolean enableAec = false;
+	private static final int FRAME_SIZE = 256;
+	private static final int SAMPLE_RATE = 44100;
+	private static final int iInChan = 1;
+	private static final int iOutChan = 1;
+	private long instance = 0;
+	private boolean enableAec = false;
 
 	public void init() {
 		aecInst = new VoiceProcessing();
-		instance = aecInst.aecInit(frameSize, iInChan, sampleRate, 7500, false);
+		instance = aecInst.aecInit(FRAME_SIZE, iInChan, SAMPLE_RATE, 7500, false);
 		//
 		boolean enableRes = true;
 		float resLevel = 0.5f;
@@ -48,25 +48,25 @@ public class AudioAecApi {
 	public void doProcess(short[] mic, short[] spk) {
 		int i;
 		int tmp32;
-		float[] audioOutput = new float[frameSize * iOutChan];
-		float[] audioInputMic = new float[frameSize * iInChan];
-		float[] audioInputSpk = new float[frameSize * iInChan];
+		float[] audioOutput = new float[FRAME_SIZE * iOutChan];
+		float[] audioInputMic = new float[FRAME_SIZE * iInChan];
+		float[] audioInputSpk = new float[FRAME_SIZE * iInChan];
 		//
-		for (i = 0; i < frameSize * iInChan; i++) {
+		for (i = 0; i < FRAME_SIZE * iInChan; i++) {
 			audioInputMic[i] = (float) mic[i] / 32768.0f;
 			audioInputSpk[i] = (float) spk[i] / 32768.0f;
 		}
-		for (i = 0; i < frameSize * iOutChan; i++) {
+		for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 			audioOutput[i] = audioInputMic[i];
 		}
 		if (enableAec == true) {
 			aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
-			for (i = 0; i < frameSize * iOutChan; i++) {
+			for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 				audioOutput[i] = audioInputMic[i];
 			}
 		}
 		//
-		for (i = 0; i < frameSize * iOutChan; i++) {
+		for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 			tmp32 = (int) (audioOutput[i] * 32768.0f);
 			if (tmp32 > 32767)
 				tmp32 = 32767;
