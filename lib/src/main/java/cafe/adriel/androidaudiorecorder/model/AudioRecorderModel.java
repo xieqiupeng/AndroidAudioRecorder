@@ -4,6 +4,7 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.graphics.Color;
 
+import cafe.adriel.androidaudiorecorder.BR;
 import cafe.adriel.androidaudiorecorder.R;
 
 public class AudioRecorderModel extends BaseObservable {
@@ -18,11 +19,10 @@ public class AudioRecorderModel extends BaseObservable {
 	private String time = "00:00:00";
 	private int textColor = Color.WHITE;
 	private boolean status = false;
-	private String statusText = "Pause";
+	private String statusText = "Playing";
 	private boolean restart = false;
 	private boolean recording = false;
-	private int recordIcon = R.drawable.aar_ic_rec;
-	private int stopIcon = R.drawable.aar_ic_stop;
+	private int icon = R.drawable.aar_ic_rec;
 
 	@Bindable
 	public String getStatusText() {
@@ -31,6 +31,7 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setStatusText(String statusText) {
 		this.statusText = statusText;
+		notifyPropertyChanged(BR.statusText);
 	}
 
 	@Bindable
@@ -106,6 +107,16 @@ public class AudioRecorderModel extends BaseObservable {
 	}
 
 	@Bindable
+	public int getIcon() {
+		return icon;
+	}
+
+	public void setIcon(int icon) {
+		this.icon = icon;
+		notifyPropertyChanged(BR.icon);
+	}
+
+	@Bindable
 	public String getTime() {
 		return time;
 	}
@@ -130,6 +141,7 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setRestart(boolean restart) {
 		this.restart = restart;
+		notifyPropertyChanged(BR.restart);
 	}
 
 	@Bindable
@@ -139,23 +151,13 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setRecording(boolean recording) {
 		this.recording = recording;
-	}
-
-	@Bindable
-	public int getRecordIcon() {
-		return recordIcon;
-	}
-
-	public void setRecordIcon(int recordIcon) {
-		this.recordIcon = recordIcon;
-	}
-
-	@Bindable
-	public int getStopIcon() {
-		return stopIcon;
-	}
-
-	public void setStopIcon(int stopIcon) {
-		this.stopIcon = stopIcon;
+		if (recording) {
+			setStatusText("Recording");
+			setIcon(R.drawable.aar_ic_pause);
+		} else {
+			setStatusText("Finish");
+			setIcon(R.drawable.aar_ic_restart);
+		}
+		notifyPropertyChanged(BR.recording);
 	}
 }

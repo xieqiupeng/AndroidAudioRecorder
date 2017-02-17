@@ -9,8 +9,8 @@ import android.widget.ImageView;
  * Target: 为databinding补充绑定方法
  */
 public class DataBindingAdapter {
-	@BindingAdapter("setIcon")
-	public static void setIcon(ImageView view, int drawable) {
+	@BindingAdapter("icon")
+	public static void icon(ImageView view, int drawable) {
 		view.setImageResource(drawable);
 	}
 

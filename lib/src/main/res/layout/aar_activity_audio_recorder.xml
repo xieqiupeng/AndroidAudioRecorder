@@ -39,8 +39,9 @@
                 android:id="@+id/status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:layout_marginBottom="-10dp"
-                android:layout_marginEnd="60dp"
+                android:layout_marginStart="70dp"
                 android:layout_marginTop="50dp"
                 android:fontFamily="sans-serif-light"
                 android:text="@{item.statusText}"
@@ -103,7 +104,7 @@
                     android:padding="10dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/aar_ic_restart"
-                    app:visible="@{item.restart}"/>
+                    android:visibility="invisible"/>
 
                 <ImageButton
                     android:id="@+id/record"
@@ -114,7 +115,7 @@
                     android:contentDescription="@null"
                     android:onClick="@{(v)->presenter.toggleRecording(v)}"
                     android:scaleType="fitCenter"
-                    app:setIcon="@{item.recording ? item.recordIcon : item.stopIcon}"/>
+                    app:icon="@{item.icon}"/>
 
                 <ImageButton
                     android:id="@+id/play"

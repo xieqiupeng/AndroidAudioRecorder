@@ -249,17 +249,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void toggleRecording(View v) {
+			if (arModel.isRecording()) {
+				stopRecording();
+			} else {
+				resumeRecording();
+			}
 			arModel.setRecording(!arModel.isRecording());
-			Util.wait(100, new Runnable() {
-				@Override
-				public void run() {
-					if (arModel.isRecording()) {
-						stopRecording();
-					} else {
-						resumeRecording();
-					}
-				}
-			});
 		}
 
 		public void togglePlaying(View v) {
@@ -297,9 +292,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void resumeRecording() {
-			arModel.setRecording(true);
 			saveMenuItem.setVisible(false);
-			statusView.setText(R.string.aar_recording);
 			statusView.setVisibility(View.VISIBLE);
 			restartView.setVisibility(View.INVISIBLE);
 			playView.setVisibility(View.INVISIBLE);
@@ -352,11 +345,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		private void stopRecording() {
 			arModel.setRestart(true);
 			arModel.setRecording(true);
+			saveMenuItem.setVisible(true);
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();
 			}
-
 			recorderSecondsElapsed = 0;
 			if (recorder != null) {
 				recorder.stopRecording();
