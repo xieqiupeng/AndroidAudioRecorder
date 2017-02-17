@@ -172,11 +172,6 @@ public interface PullTransport {
 					if (onAudioChunkPulledListener != null) {
 						postPullEvent(audioChunk);
 					}
-
-				}
-
-				if (Sounddata1.getInstance().isEmpty()) {
-					return;
 				}
 				Log.w("123", Sounddata1.getInstance().spkCircleBuf.length + "");
 				try {
@@ -191,10 +186,8 @@ public interface PullTransport {
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
-
 					}
 					writeAction.execute(audioChunk.toBytes(), outputStream);
-
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}

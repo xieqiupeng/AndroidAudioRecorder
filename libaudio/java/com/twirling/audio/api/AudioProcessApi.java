@@ -70,10 +70,7 @@ public class AudioProcessApi {
 					sounddataFrame[i] = sounddata[pos + i];
 				}
 				Sounddata1.getInstance().setSpkCircleBuf(sounddataFrame);
-
 				//  FileUtil.writeFileFromShort(sounddataFrame);
-				//
-
 				audioplayer.write(sounddataFrame, 0, frameSize * iOutChan);
 				pos += frameSize * iInChan;
 				if (pos >= datasize / 2 - frameSize * iInChan) {

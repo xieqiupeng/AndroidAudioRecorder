@@ -56,7 +56,7 @@ public class AudioProcessApi {
 	float nsDB = -10.0f;
 	boolean enableSpkClip = false;
 	float spkClipThd = 1.0f;
-	float maxCoupling = 0.5f;
+	float maxCoupling = 10.0f;
 
 	public void init() {
 		datasizeList = new int[2];
@@ -65,7 +65,7 @@ public class AudioProcessApi {
 		     aecInst:  Init function.
 
          ------------------------------------------*/
-		instance = aecInst.aecInit(frameSize, iInChan, sampleRate, 0, false);
+		instance = aecInst.aecInit(frameSize, iInChan, sampleRate, 7500, false);
 
        /* -----------------------------------------
              audioEngineSet: Config parameter setting function.
