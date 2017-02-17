@@ -12,8 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cleveroad.audiovisualization.DbmHandler;
@@ -97,7 +97,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				.setLayerColors(new int[]{arModel.getColor()})
 				.build();
 		//
-		LinearLayout contentLayout = (LinearLayout) findViewById(R.id.content);
+		FrameLayout contentLayout = (FrameLayout) findViewById(R.id.content);
 		contentLayout.setBackgroundColor(Util.getDarkerColor(arModel.getColor()));
 
 		statusView = (TextView) findViewById(R.id.status);

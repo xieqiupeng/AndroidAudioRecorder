@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion setup.compileSdk
+    buildToolsVersion setup.buildTools
     defaultConfig {
         applicationId "cafe.adriel.androidaudiorecorder.example"
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion setup.minSdk
+        targetSdkVersion setup.targetSdk
         versionCode 1
         versionName "1.0"
     }
@@ -28,6 +28,9 @@ android {
             jni.srcDirs = [];
             jniLibs.srcDirs = ['libs']
         }
+    }
+    dataBinding {
+        enabled = true
     }
 //    productFlavors {
 //        armv7 {
@@ -54,7 +57,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile project(':lib')
-    compile project(':libaudio')
-    compile project(':librecord')
+//    compile project(':libaudio')
+//    compile project(':librecord')
 //    compile 'com.github.adrielcafe:AndroidAudioRecorder:0.1.0'
 }

@@ -17,15 +17,15 @@ public class AudioRecorderModel extends BaseObservable {
 	private int textColor = Color.WHITE;
 	private boolean status = false;
 	private boolean restart = false;
-	private String stausText = "Pause";
+	private String statusText = "Pause";
 
 	@Bindable
-	public String getStausText() {
-		return stausText;
+	public String getStatusText() {
+		return statusText;
 	}
 
-	public void setStausText(String stausText) {
-		this.stausText = stausText;
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
 	}
 
 	@Bindable

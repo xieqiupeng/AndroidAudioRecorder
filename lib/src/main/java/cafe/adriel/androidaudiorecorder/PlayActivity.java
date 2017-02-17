@@ -5,7 +5,7 @@ package cafe.adriel.androidaudiorecorder;
  */
 
 public class PlayActivity {
-//	private AudioProcessApi audioProcessApi;
+//	private AudioAecApi audioProcessApi;
 //	private Thread audioThread;
 //
 //	private void singleProcess() {
@@ -16,7 +16,7 @@ public class PlayActivity {
 //						//soundId handle is stored and allows for repositioning the sound object whenever
 //						// the cube position changes.
 //						Thread.currentThread().getName();
-//						audioProcessApi = new AudioProcessApi();
+//						audioProcessApi = new AudioAecApi();
 //						audioProcessApi.init();
 //						try {
 //							audioProcessApi.LoadWavFile(wavFilePath);

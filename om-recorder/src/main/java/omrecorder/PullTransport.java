@@ -19,7 +19,7 @@ import android.media.AudioRecord;
 import android.util.Log;
 
 import com.twirling.audio.model.Sounddata1;
-import com.twirling.audioRun.api.AudioProcessApi;
+import com.twirling.audioRun.api.AudioAecApi;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -127,7 +127,7 @@ public interface PullTransport {
 		private short[] aecInputSpk = new short[FRAMESIZE / 2];
 		private int recordFrameSize = 0;
 		private int recordFrameNum = 0;
-		private AudioProcessApi audioAecApi;
+		private AudioAecApi audioAecApi;
 
 		public void stopProcess() {
 			audioAecApi.stopProcess();
@@ -144,7 +144,7 @@ public interface PullTransport {
 			Log.w("xqp", audioChunk.shorts.length + "");
 
 			// 处理aec
-			audioAecApi = new AudioProcessApi();
+			audioAecApi = new AudioAecApi();
 			audioAecApi.init();
 		}
 

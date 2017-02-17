@@ -8,6 +8,10 @@
 
         <import type="cafe.adriel.androidaudiorecorder.AudioRecorderActivity"/>
 
+        <import type="com.twirling.libaec.model.SurfaceModel"/>
+
+        <import type="com.twirling.libaec.activity.SurfaceActivity"/>
+
         <variable
             name="presenter"
             type="AudioRecorderActivity.Presenter"/>
@@ -15,19 +19,26 @@
         <variable
             name="item"
             type="AudioRecorderModel"/>
+
+
+        <variable
+            name="presenter2"
+            type="SurfaceActivity.Presenter"/>
+
+        <variable
+            name="item2"
+            type="SurfaceModel"/>
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
             android:orientation="vertical">
 
             <TextView
@@ -35,8 +46,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="-10dp"
+                android:layout_marginEnd="60dp"
+                android:layout_marginTop="50dp"
                 android:fontFamily="sans-serif-light"
-                android:text="Pause"
+                android:text="@{item.statusText}"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="normal"
@@ -48,52 +61,77 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-thin"
                 android:text="00:00:00"
-                android:textStyle="normal"
                 android:textColor="@android:color/white"
-                android:textSize="60sp"/>
+                android:textSize="60sp"
+                android:textStyle="normal"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <CheckBox
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{item2.aecTurnOn}"
+                android:onClick="@{(v)-> presenter2.toggleAECTurnOn(v)}"
+                android:padding="30dp"
+                android:text="AEC TURN ON"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@android:color/black"/>
+
+            <CheckBox
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{item2.ansTurnOn}"
+                android:enabled="@{item2.aecTurnOn}"
+                android:onClick="@{(v)-> presenter2.toggleANSTurnOn(v)}"
+                android:padding="30dp"
+                android:text="ANS TURN ON"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@android:color/black"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/aar_footer_height"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/restart"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:contentDescription="@null"
+                    android:onClick="@{(v)->presenter.restartRecording(v)}"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/aar_ic_restart"
+                    android:visibility="invisible"/>
+
+                <ImageButton
+                    android:id="@+id/record"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_margin="30dp"
+                    android:contentDescription="@null"
+                    android:onClick="@{(v)->presenter.toggleRecording(v)}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/aar_ic_rec"/>
+
+                <ImageButton
+                    android:id="@+id/play"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:contentDescription="@null"
+                    android:onClick="@{(v)->presenter.togglePlaying(v)}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/aar_ic_play"/>
+            </LinearLayout>
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/aar_footer_height"
-            android:layout_marginBottom="30dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/restart"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:onClick="restartRecording"
-                android:padding="10dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/aar_ic_restart"
-                android:visibility="invisible"/>
-
-            <ImageButton
-                android:id="@+id/record"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_margin="30dp"
-                android:onClick="toggleRecording"
-                android:scaleType="fitCenter"
-                android:src="@drawable/aar_ic_rec"/>
-
-            <ImageButton
-                android:id="@+id/play"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:onClick="togglePlaying"
-                android:scaleType="fitCenter"
-                android:src="@drawable/aar_ic_play"/>
-        </LinearLayout>
-    </LinearLayout>
+    </FrameLayout>
 </layout>

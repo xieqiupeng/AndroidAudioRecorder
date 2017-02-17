@@ -7,5 +7,4 @@
         android:title="@string/aar_save"
         android:visible="false"
         app:showAsAction="always"/>
-
 </menu>
