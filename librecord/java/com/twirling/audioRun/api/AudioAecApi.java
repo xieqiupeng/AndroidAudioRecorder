@@ -17,6 +17,7 @@
 package com.twirling.audioRun.api;
 
 import com.twirling.audio.VoiceProcessing;
+import com.twirling.libaec.model.SurfaceModel;
 
 /**
  * Contains vertex, normal and color data.
@@ -29,19 +30,18 @@ public class AudioAecApi {
 	private static final int iInChan = 1;
 	private static final int iOutChan = 1;
 	private long instance = 0;
-	private boolean enableAec = false;
+	//
+	boolean enableRes = true;
+	float resLevel = 0.5f;
+	boolean enableNS = true;
+	float nsDB = -10.0f;
+	boolean enableSpkClip = false;
+	float spkClipThd = 1.0f;
+	float maxCoupling = 10.0f;
 
 	public void init() {
 		aecInst = new VoiceProcessing();
 		instance = aecInst.aecInit(FRAME_SIZE, iInChan, SAMPLE_RATE, 7500, false);
-		//
-		boolean enableRes = true;
-		float resLevel = 0.5f;
-		boolean enableNS = true;
-		float nsDB = -10.0f;
-		boolean enableSpkClip = false;
-		float spkClipThd = 1.0f;
-		float maxCoupling = 10.0f;
 		aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
 	}
 
@@ -59,13 +59,18 @@ public class AudioAecApi {
 		for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 			audioOutput[i] = audioInputMic[i];
 		}
-		if (enableAec == true) {
-			aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
+		if (SurfaceModel.getInstance().isAnsTurnOn()) {
+			enableNS = true;
+		} else {
+			enableNS = false;
+		}
+		aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
+		aecInst.aecProcess(instance, audioInputSpk, audioInputMic);
+		if (SurfaceModel.getInstance().isAecTurnOn()) {
 			for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 				audioOutput[i] = audioInputMic[i];
 			}
 		}
-		//
 		for (i = 0; i < FRAME_SIZE * iOutChan; i++) {
 			tmp32 = (int) (audioOutput[i] * 32768.0f);
 			if (tmp32 > 32767)

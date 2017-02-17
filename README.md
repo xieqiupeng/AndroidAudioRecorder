@@ -36,7 +36,7 @@ AndroidAudioRecorder.with(this)
     .setKeepDisplayOn(true)
     
     // Start recording
-    .record();
+    .recording();
 ```
 
 3 - Wait for result

@@ -4,6 +4,8 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.graphics.Color;
 
+import cafe.adriel.androidaudiorecorder.R;
+
 public class AudioRecorderModel extends BaseObservable {
 	private String filePath;
 	private AudioSource source;
@@ -16,8 +18,11 @@ public class AudioRecorderModel extends BaseObservable {
 	private String time = "00:00:00";
 	private int textColor = Color.WHITE;
 	private boolean status = false;
-	private boolean restart = false;
 	private String statusText = "Pause";
+	private boolean restart = false;
+	private boolean recording = false;
+	private int recordIcon = R.drawable.aar_ic_rec;
+	private int stopIcon = R.drawable.aar_ic_stop;
 
 	@Bindable
 	public String getStatusText() {
@@ -125,5 +130,32 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setRestart(boolean restart) {
 		this.restart = restart;
+	}
+
+	@Bindable
+	public boolean isRecording() {
+		return recording;
+	}
+
+	public void setRecording(boolean recording) {
+		this.recording = recording;
+	}
+
+	@Bindable
+	public int getRecordIcon() {
+		return recordIcon;
+	}
+
+	public void setRecordIcon(int recordIcon) {
+		this.recordIcon = recordIcon;
+	}
+
+	@Bindable
+	public int getStopIcon() {
+		return stopIcon;
+	}
+
+	public void setStopIcon(int stopIcon) {
+		this.stopIcon = stopIcon;
 	}
 }

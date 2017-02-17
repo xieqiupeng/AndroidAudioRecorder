@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
+import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
 import java.util.Timer;
@@ -44,7 +45,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	private MenuItem saveMenuItem;
 	private int recorderSecondsElapsed;
 	private int playerSecondsElapsed;
-	private boolean isRecording;
+//	private boolean isRecording;
 
 	private GLAudioVisualizationView visualizerView;
 	private TextView statusView;
@@ -61,8 +62,10 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		super.onCreate(savedInstanceState);
 		binding = DataBindingUtil.setContentView(this, R.layout.aar_activity_audio_recorder);
 		presenter = new Presenter();
+		arModel = new AudioRecorderModel();
 		binding.setPresenter(presenter);
 		binding.setItem(arModel);
+		binding.setItem2(SurfaceModel.getInstance());
 		//
 		initdata(savedInstanceState);
 		//
@@ -124,7 +127,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	}
 
 	private void initdata(Bundle savedInstanceState) {
-		arModel = new AudioRecorderModel();
 		String filePath;
 		AudioSource source;
 		AudioChannel channel;
@@ -162,7 +164,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		if (arModel.isAutoStart() && !isRecording) {
+		if (arModel.isAutoStart() && !arModel.isRecording()) {
 			presenter.toggleRecording(null);
 		}
 	}
@@ -231,19 +233,28 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	}
 
 	public class Presenter {
+
+		public void toggleAECTurnOn(View view) {
+			SurfaceModel.getInstance().setAecTurnOn(!SurfaceModel.getInstance().isAecTurnOn());
+		}
+
+		public void toggleANSTurnOn(View view) {
+			SurfaceModel.getInstance().setAnsTurnOn(!SurfaceModel.getInstance().isAnsTurnOn());
+		}
+
 		private void selectAudio() {
 			stopRecording();
-			setResult(RESULT_OK);
+//			setResult(RESULT_OK);
 			finish();
 		}
 
 		public void toggleRecording(View v) {
-			stopPlaying();
+			arModel.setRecording(!arModel.isRecording());
 			Util.wait(100, new Runnable() {
 				@Override
 				public void run() {
-					if (isRecording) {
-						pauseRecording();
+					if (arModel.isRecording()) {
+						stopRecording();
 					} else {
 						resumeRecording();
 					}
@@ -266,7 +277,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void restartRecording(View v) {
-			if (isRecording) {
+			if (arModel.isRecording()) {
 				stopRecording();
 			} else if (isPlaying()) {
 				stopPlaying();
@@ -279,23 +290,19 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				}
 			}
 			saveMenuItem.setVisible(false);
-			statusView.setVisibility(View.INVISIBLE);
-			restartView.setVisibility(View.INVISIBLE);
-			playView.setVisibility(View.INVISIBLE);
-			recordView.setImageResource(R.drawable.aar_ic_rec);
-			timerView.setText("00:00:00");
+			arModel.setRestart(false);
+			arModel.setTime("00:00:00");
 			recorderSecondsElapsed = 0;
 			playerSecondsElapsed = 0;
 		}
 
 		private void resumeRecording() {
-			isRecording = true;
+			arModel.setRecording(true);
 			saveMenuItem.setVisible(false);
 			statusView.setText(R.string.aar_recording);
 			statusView.setVisibility(View.VISIBLE);
 			restartView.setVisibility(View.INVISIBLE);
 			playView.setVisibility(View.INVISIBLE);
-			recordView.setImageResource(R.drawable.aar_ic_pause);
 			playView.setImageResource(R.drawable.aar_ic_play);
 
 			visualizerHandler = new VisualizerHandler();
@@ -308,7 +315,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 						new PullTransport.OnAudioChunkPulledListener() {
 							@Override
 							public void onAudioChunkPulled(AudioChunk audioChunk) {
-								float amplitude = isRecording ? (float) audioChunk.maxAmplitude() : 0f;
+								float amplitude = arModel.isRecording() ? (float) audioChunk.maxAmplitude() : 0f;
 								visualizerHandler.onDataReceived(amplitude);
 							}
 						});
@@ -319,7 +326,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void pauseRecording() {
-			isRecording = false;
+			arModel.setRecording(false);
 			if (!isFinishing()) {
 				saveMenuItem.setVisible(true);
 			}
@@ -327,7 +334,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			statusView.setVisibility(View.VISIBLE);
 			restartView.setVisibility(View.VISIBLE);
 			playView.setVisibility(View.VISIBLE);
-			recordView.setImageResource(R.drawable.aar_ic_rec);
+			arModel.setRecording(false);
 			playView.setImageResource(R.drawable.aar_ic_play);
 
 			visualizerView.release();
@@ -343,6 +350,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void stopRecording() {
+			arModel.setRestart(true);
+			arModel.setRecording(true);
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();
@@ -353,7 +362,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				recorder.stopRecording();
 				recorder = null;
 			}
-
 			stopTimer();
 		}
 
@@ -407,13 +415,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 					e.printStackTrace();
 				}
 			}
-
 			stopTimer();
 		}
 
 		private boolean isPlaying() {
 			try {
-				return player != null && player.isPlaying() && !isRecording;
+				return player != null && player.isPlaying() && !arModel.isRecording();
 			} catch (Exception e) {
 				return false;
 			}
@@ -442,7 +449,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (isRecording) {
+					if (arModel.isRecording()) {
 						recorderSecondsElapsed++;
 						timerView.setText(Util.formatSeconds(recorderSecondsElapsed));
 					} else if (isPlaying()) {

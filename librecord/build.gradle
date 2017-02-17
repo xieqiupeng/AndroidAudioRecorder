@@ -35,6 +35,9 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 configurations.all {
@@ -56,4 +59,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:$versions.supportLib"
     compile 'com.orhanobut:logger:1.11'
+    compile 'com.github.xieqiupeng:AecSDK:1.0.7'
 }

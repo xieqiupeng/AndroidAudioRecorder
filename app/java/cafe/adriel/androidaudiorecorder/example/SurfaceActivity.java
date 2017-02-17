@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.api.Constants;
@@ -34,47 +33,48 @@ public class SurfaceActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surface);
-
+		//
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setBackgroundDrawable(
 					new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
 		}
 		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
 		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		//
+		play();
+		//
+		recordAudio(null);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_RECORD_AUDIO) {
-			if (resultCode == RESULT_OK) {
-				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
-			} else if (resultCode == RESULT_CANCELED) {
-				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
-			}
-		}
+//		if (requestCode == REQUEST_RECORD_AUDIO) {
+//			if (resultCode == RESULT_OK) {
+//				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
+//			} else if (resultCode == RESULT_CANCELED) {
+//				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
+//			}
+//		}
 		if (audioProcessApi != null) {
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
 		}
+		finish();
 	}
 
 	public void recordAudio(View v) {
-		play();
-		//
 		AndroidAudioRecorder.with(this)
 				// Required
 				.setFilePath(AUDIO_FILE_PATH)
 				.setColor(ContextCompat.getColor(this, R.color.recorder_bg))
 				.setRequestCode(REQUEST_RECORD_AUDIO)
-
 				// Optional
 				.setSource(AudioSource.MIC)
 				.setChannel(AudioChannel.MONO)
 				.setSampleRate(AudioSampleRate.HZ_44100)
-				.setAutoStart(true)
+				.setAutoStart(false)
 				.setKeepDisplayOn(true)
-
 				// Start recording
 				.record();
 	}

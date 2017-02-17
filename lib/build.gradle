@@ -25,6 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
 //    compile 'com.kailashdabhi:om-recorder:1.1.0'
     compile 'com.cleveroad:audiovisualization:1.0.0'
-    compile 'com.github.xieqiupeng:AecSDK:1.0.6'
     compile project(':om-recorder')
 }
