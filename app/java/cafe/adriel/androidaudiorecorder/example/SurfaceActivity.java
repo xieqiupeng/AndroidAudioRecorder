@@ -45,6 +45,10 @@ public class SurfaceActivity extends AppCompatActivity {
 		//
 		Constants.SAMPLE_INDEX = 2;
 		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
+		//
+//		play();
+		//
+		recordAudio(null);
 	}
 
 	@Override
@@ -64,7 +68,6 @@ public class SurfaceActivity extends AppCompatActivity {
 	}
 
 	public void recordAudio(View v) {
-		play();
 		//
 		AndroidAudioRecorder.with(this)
 				// Required
@@ -75,7 +78,7 @@ public class SurfaceActivity extends AppCompatActivity {
 				.setSource(AudioSource.MIC)
 				.setChannel(AudioChannel.MONO)
 				.setSampleRate(AudioSampleRate.HZ_44100)
-				.setAutoStart(true)
+				.setAutoStart(false)
 				.setKeepDisplayOn(true)
 				// Start recording
 				.record();

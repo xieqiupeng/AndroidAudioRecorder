@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -63,10 +65,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	String fileName = Environment.getExternalStorageDirectory().getPath()
 			+ "/"
 			+ Environment.DIRECTORY_DOWNLOADS + "/mono.wav";
+	private Thread audioThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		binding = DataBindingUtil.setContentView(this, R.layout.aar_activity_audio_recorder);
 		presenter = new Presenter();
 		arModel = new AudioRecorderModel();
@@ -310,6 +314,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			visualizerView.linkTo(visualizerHandler);
 			if (recorder == null) {
 				timerView.setText("00:00:00");
+				//
+				playAudio();
 				// TODO
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),
@@ -366,6 +372,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				recorder = null;
 			}
 			stopTimer();
+			stopAudio();
 		}
 
 		private void startPlaying() {
@@ -464,4 +471,31 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 	}
 
+	private void playAudio() {
+		audioThread = new Thread(
+				new Runnable() {
+					public void run() {
+						// Start spatial audio playback of SOUND_FILE at the model postion. The returned
+						//soundId handle is stored and allows for repositioning the sound object whenever
+						// the cube position changes.
+						Thread.currentThread().getName();
+						audioProcessApi = new AudioProcessApi();
+						audioProcessApi.init();
+						try {
+							audioProcessApi.LoadWavFile(fileName);
+							audioProcessApi.soundPlay();
+						} catch (Exception e) {
+							Log.w("", e.toString());
+						}
+					}
+				});
+		audioThread.start();
+	}
+
+	private void stopAudio(){
+		if (audioProcessApi != null) {
+			audioProcessApi.stopPlay();
+			audioThread.interrupt();
+		}
+	}
 }
