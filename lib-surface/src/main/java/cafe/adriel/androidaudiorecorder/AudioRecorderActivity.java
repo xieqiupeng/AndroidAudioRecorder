@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
+import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
@@ -56,6 +58,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	private PullTransport.Default pullTransport;
 	private Presenter presenter;
 	private AarActivityAudioRecorderBinding binding;
+	//
+	AudioProcessApi audioProcessApi;
+	String fileName = Environment.getExternalStorageDirectory().getPath()
+			+ "/"
+			+ Environment.DIRECTORY_DOWNLOADS + "/mono.wav";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -244,7 +251,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 
 		private void selectAudio() {
 			stopRecording();
-//			setResult(RESULT_OK);
+			setResult(RESULT_OK);
 			finish();
 		}
 
@@ -292,7 +299,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void resumeRecording() {
-			saveMenuItem.setVisible(false);
+			if (saveMenuItem != null)
+				saveMenuItem.setVisible(false);
 			statusView.setVisibility(View.VISIBLE);
 			restartView.setVisibility(View.INVISIBLE);
 			playView.setVisibility(View.INVISIBLE);
@@ -314,6 +322,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 						});
 				recorder = OmRecorder.wav(pullTransport, new File(arModel.getFilePath()));
 			}
+			//
 			recorder.resumeRecording();
 			startTimer();
 		}
@@ -346,6 +355,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			arModel.setRestart(true);
 			arModel.setRecording(true);
 			saveMenuItem.setVisible(true);
+			visualizerView.onPause();
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();

@@ -16,6 +16,7 @@
 package omrecorder;
 
 import android.media.AudioRecord;
+import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
 import com.twirling.audio.model.Sounddata1;
@@ -23,6 +24,8 @@ import com.twirling.audioRun.api.AudioAecApi;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import omrecorder.widget.FileUtil;
 
 /**
  * A PullTransport is a object who pulls the data from {@code AudioSource} and transport it to
@@ -134,15 +137,15 @@ public interface PullTransport {
 		}
 
 		public Default(AudioSource audioRecordSource,
-		               OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction) {
+		               OnAudioChunkPulledListener onAudioChunkPulledListener,
+		               WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
 			recordFrameSize = audioRecordSource.minimumBufferSize();
 			recordFrameNum = (int) (Math.ceil((float) recordFrameSize / FRAMESIZE)); //check
 			recordFrameSize = recordFrameNum * FRAMESIZE;
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
-			Log.w("xqp", audioChunk.shorts.length + "");
-
+//			Log.w("xqp", audioChunk.shorts.length + "");
 			// 处理aec
 			audioAecApi = new AudioAecApi();
 			audioAecApi.init();
@@ -154,19 +157,43 @@ public interface PullTransport {
 
 		public Default(AudioSource audioRecordSource,
 		               OnAudioChunkPulledListener onAudioChunkPulledListener) {
-			this(audioRecordSource, onAudioChunkPulledListener, new WriteAction.Default());
+			this(audioRecordSource,
+					onAudioChunkPulledListener,
+					new WriteAction.Default());
 		}
 
 		public Default(AudioSource audioRecordSource) {
-			this(audioRecordSource, null, new WriteAction.Default());
+			this(audioRecordSource,
+					null,
+					new WriteAction.Default());
+		}
+
+		public byte[] toBytes(short[] shorts) {
+			int shortIndex, byteIndex;
+			byte[] buffer = new byte[shorts.length * 2];
+			shortIndex = byteIndex = 0;
+			for (; shortIndex != shorts.length; ) {
+				buffer[byteIndex] = (byte) (shorts[shortIndex] & 0x00FF);
+				buffer[byteIndex + 1] = (byte) ((shorts[shortIndex] & 0xFF00) >> 8);
+				++shortIndex;
+				byteIndex += 2;
+			}
+			return buffer;
 		}
 
 		@Override
 		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
 		                            OutputStream outputStream) throws IOException {
+			AcousticEchoCanceler aec = AcousticEchoCanceler.create(audioRecord.getAudioSessionId());
+			aec.setEnabled(true);
 			while (audioRecordSource.isEnableToBePulled()) {
+				Log.w(PullTransport.class.getSimpleName(), audioRecord.getAudioSessionId() + " "
+						+ aec.getEnabled() + " "
+						+ aec.getId() + " "
+						+ aec.getDescriptor() + " "
+						+ AcousticEchoCanceler.isAvailable());
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
-				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
+//				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
 				//
 				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
 					if (onAudioChunkPulledListener != null) {
@@ -182,12 +209,13 @@ public interface PullTransport {
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}
-						audioAecApi.doProcess(aecInputMic, aecInputSpk);
+//						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
 					}
-					writeAction.execute(audioChunk.toBytes(), outputStream);
+					writeAction.execute(toBytes(aecInputSpk), outputStream);
+					writeAction.execute(toBytes(aecInputMic), FileUtil.getOutputStream());
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}

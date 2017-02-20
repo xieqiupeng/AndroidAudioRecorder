@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.api.Constants;
@@ -28,6 +29,7 @@ public class SurfaceActivity extends AppCompatActivity {
 	private AudioProcessApi audioProcessApi;
 
 	private Thread audioThread;
+	String wavFilePath;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +43,29 @@ public class SurfaceActivity extends AppCompatActivity {
 		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
 		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 		//
-		play();
-		//
-		recordAudio(null);
+		Constants.SAMPLE_INDEX = 2;
+		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-//		if (requestCode == REQUEST_RECORD_AUDIO) {
-//			if (resultCode == RESULT_OK) {
-//				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
-//			} else if (resultCode == RESULT_CANCELED) {
-//				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
-//			}
-//		}
+		if (requestCode == REQUEST_RECORD_AUDIO) {
+			if (resultCode == RESULT_OK) {
+				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
+			} else if (resultCode == RESULT_CANCELED) {
+				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
+			}
+		}
 		if (audioProcessApi != null) {
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
 		}
-		finish();
 	}
 
 	public void recordAudio(View v) {
+		play();
+		//
 		AndroidAudioRecorder.with(this)
 				// Required
 				.setFilePath(AUDIO_FILE_PATH)
@@ -73,15 +75,13 @@ public class SurfaceActivity extends AppCompatActivity {
 				.setSource(AudioSource.MIC)
 				.setChannel(AudioChannel.MONO)
 				.setSampleRate(AudioSampleRate.HZ_44100)
-				.setAutoStart(false)
+				.setAutoStart(true)
 				.setKeepDisplayOn(true)
 				// Start recording
 				.record();
 	}
 
 	public void play() {
-		Constants.SAMPLE_INDEX = 2;
-		final String wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
 		audioThread = new Thread(
 				new Runnable() {
 					public void run() {
