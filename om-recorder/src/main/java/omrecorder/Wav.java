@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import omrecorder.widget.FileUtil;
+
 /**
  * {@code Wav} is recorder for recording audio in wav format.
  *
@@ -50,6 +52,7 @@ final class Wav extends AbstractRecorder {
     super.stopRecording();
     try {
       writeWavHeader();
+      FileUtil.writeWavHeader();
     } catch (IOException e) {
     }
   }

@@ -3,10 +3,12 @@ package omrecorder.widget;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
 /**
  * Created by xieqi on 2017/2/20.
@@ -18,8 +20,11 @@ public class FileUtil {
 			+ Environment.DIRECTORY_MUSIC
 			+ "/audio_processed.wav";
 
+	private static File file = null;
+	private static RandomAccessFile wavFile;
+
 	public static OutputStream getOutputStream() {
-		File file = createFile(new File(path));
+		file = createFile(new File(path));
 		OutputStream outputStream;
 		try {
 			outputStream = new FileOutputStream(file);
@@ -29,7 +34,6 @@ public class FileUtil {
 		}
 		return outputStream;
 	}
-
 
 	public static boolean mkdir(File file) {
 		while (!file.getParentFile().exists()) {
@@ -49,5 +53,27 @@ public class FileUtil {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static void writeWavHeader() {
+		try {
+			wavFile = randomAccessFile(file);
+			long totalAudioLen = new FileInputStream(file).getChannel().size();
+			wavFile.seek(0); // to the beginning
+			wavFile.write(new WavHeader(totalAudioLen).toBytes());
+			wavFile.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static RandomAccessFile randomAccessFile(File file) {
+		RandomAccessFile randomAccessFile;
+		try {
+			randomAccessFile = new RandomAccessFile(file, "rw");
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		return randomAccessFile;
 	}
 }

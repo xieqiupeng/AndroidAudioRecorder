@@ -124,6 +124,7 @@ public interface PullTransport {
 	final class Default extends AbstractPullTransport {
 
 		private final WriteAction writeAction;
+		private final WriteAction writeAction2;
 		private final AudioChunk.Shorts audioChunk;
 		private final int FRAMESIZE = 512;
 		private short[] aecInputMic = new short[FRAMESIZE / 2];
@@ -141,6 +142,7 @@ public interface PullTransport {
 		               WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
+			writeAction2 = new WriteAction.Default();
 			recordFrameSize = audioRecordSource.minimumBufferSize();
 			recordFrameNum = (int) (Math.ceil((float) recordFrameSize / FRAMESIZE)); //check
 			recordFrameSize = recordFrameNum * FRAMESIZE;
@@ -186,6 +188,7 @@ public interface PullTransport {
 		                            OutputStream outputStream) throws IOException {
 			AcousticEchoCanceler aec = AcousticEchoCanceler.create(audioRecord.getAudioSessionId());
 			aec.setEnabled(true);
+			OutputStream outputStream1 = FileUtil.getOutputStream();
 			while (audioRecordSource.isEnableToBePulled()) {
 				Log.w(PullTransport.class.getSimpleName(), audioRecord.getAudioSessionId() + " "
 						+ aec.getEnabled() + " "
@@ -214,8 +217,10 @@ public interface PullTransport {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
 					}
-					writeAction.execute(toBytes(aecInputSpk), outputStream);
-					writeAction.execute(toBytes(aecInputMic), FileUtil.getOutputStream());
+//					writeAction.execute(toBytes(audioChunk.shorts), outputStream);
+//					toBytes(aecInputMic)
+//					audioChunk.toBytes()
+					writeAction.execute(toBytes(audioChunk.shorts), outputStream1);
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}
