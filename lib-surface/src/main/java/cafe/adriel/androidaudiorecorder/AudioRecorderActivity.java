@@ -3,14 +3,12 @@ package cafe.adriel.androidaudiorecorder;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -89,15 +87,18 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 		//
 		if (getSupportActionBar() != null) {
-			getSupportActionBar().setHomeButtonEnabled(true);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setDisplayShowTitleEnabled(false);
-			getSupportActionBar().setElevation(0);
-			getSupportActionBar().setBackgroundDrawable(
-					new ColorDrawable(Util.getDarkerColor(arModel.getColor())));
-			getSupportActionBar().setHomeAsUpIndicator(
-					ContextCompat.getDrawable(this, R.drawable.aar_ic_clear));
+			getSupportActionBar().hide();
 		}
+//		if (getSupportActionBar() != null) {
+//			getSupportActionBar().setHomeButtonEnabled(true);
+//			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//			getSupportActionBar().setDisplayShowTitleEnabled(false);
+//			getSupportActionBar().setElevation(0);
+//			getSupportActionBar().setBackgroundDrawable(
+//					new ColorDrawable(Util.getDarkerColor(arModel.getColor())));
+//			getSupportActionBar().setHomeAsUpIndicator(
+//					ContextCompat.getDrawable(this, R.drawable.aar_ic_clear));
+//		}
 		//
 		visualizerView = new GLAudioVisualizationView.Builder(this)
 				.setLayersCount(1)
@@ -205,7 +206,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		setResult(RESULT_CANCELED);
 		try {
 			visualizerView.release();
-			pullTransport.stopProcess();
 		} catch (Exception e) {
 		}
 		super.onDestroy();
@@ -218,25 +218,24 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		super.onSaveInstanceState(outState);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.aar_audio_recorder, menu);
-		saveMenuItem = menu.findItem(R.id.action_save);
-		saveMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.aar_ic_check));
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int i = item.getItemId();
-		if (i == android.R.id.home) {
-			finish();
-		} else if (i == R.id.action_save) {
-			presenter.selectAudio();
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		getMenuInflater().inflate(R.menu.aar_audio_recorder, menu);
+//		saveMenuItem = menu.findItem(R.id.action_save);
+//		saveMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.aar_ic_check));
+//		return super.onCreateOptionsMenu(menu);
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		int i = item.getItemId();
+//		if (i == android.R.id.home) {
+//			finish();
+//		} else if (i == R.id.action_save) {
+//			presenter.selectAudio();
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
@@ -295,7 +294,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 					visualizerHandler.stop();
 				}
 			}
-			saveMenuItem.setVisible(false);
+			if (saveMenuItem != null)
+				saveMenuItem.setVisible(false);
 			arModel.setRestart(false);
 			arModel.setTime("00:00:00");
 			recorderSecondsElapsed = 0;
@@ -336,7 +336,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		private void pauseRecording() {
 			arModel.setRecording(false);
 			if (!isFinishing()) {
-				saveMenuItem.setVisible(true);
+				if (saveMenuItem != null)
+					saveMenuItem.setVisible(true);
 			}
 			statusView.setText(R.string.aar_paused);
 			statusView.setVisibility(View.VISIBLE);
@@ -360,7 +361,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		private void stopRecording() {
 			arModel.setRestart(true);
 			arModel.setRecording(true);
-			saveMenuItem.setVisible(true);
 			visualizerView.onPause();
 			visualizerView.release();
 			if (visualizerHandler != null) {
@@ -373,6 +373,9 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			}
 			stopTimer();
 			stopAudio();
+			if (pullTransport != null) {
+				pullTransport.stopProcess();
+			}
 		}
 
 		private void startPlaying() {
@@ -492,7 +495,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		audioThread.start();
 	}
 
-	private void stopAudio(){
+	private void stopAudio() {
 		if (audioProcessApi != null) {
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
