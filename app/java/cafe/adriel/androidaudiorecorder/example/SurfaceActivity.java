@@ -1,7 +1,10 @@
 package cafe.adriel.androidaudiorecorder.example;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,9 +30,11 @@ public class SurfaceActivity extends AppCompatActivity {
 					+ "/"
 					+ Environment.DIRECTORY_MUSIC + "/audio_recorded.wav";
 	private AudioProcessApi audioProcessApi;
-
 	private Thread audioThread;
-	String wavFilePath;
+	private String wavFilePath;
+
+	private ExitAppReceiver exitReceiver = new ExitAppReceiver();
+	private static final String EXIT_APP_ACTION = "com.exit";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,8 @@ public class SurfaceActivity extends AppCompatActivity {
 		}
 		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
 		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		//
+		registerExitReceiver();
 		//
 		Constants.SAMPLE_INDEX = 2;
 		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
@@ -56,7 +63,8 @@ public class SurfaceActivity extends AppCompatActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_RECORD_AUDIO) {
 			if (resultCode == RESULT_OK) {
-				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
+				finish();
 			} else if (resultCode == RESULT_CANCELED) {
 				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
 			}
@@ -103,5 +111,28 @@ public class SurfaceActivity extends AppCompatActivity {
 					}
 				});
 		audioThread.start();
+	}
+
+	private void registerExitReceiver() {
+		IntentFilter exitFilter = new IntentFilter();
+		exitFilter.addAction(EXIT_APP_ACTION);
+		registerReceiver(exitReceiver, exitFilter);
+	}
+
+	private void unRegisterExitReceiver() {
+		unregisterReceiver(exitReceiver);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unRegisterExitReceiver();
+	}
+
+	public class ExitAppReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			SurfaceActivity.this.finish();
+		}
 	}
 }

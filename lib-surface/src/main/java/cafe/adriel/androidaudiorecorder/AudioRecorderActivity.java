@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
@@ -378,6 +379,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (pullTransport != null) {
 				pullTransport.stopProcess();
 			}
+			Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 		}
 
 		private void startPlaying() {
@@ -502,5 +504,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		setResult(RESULT_OK);
+		finish();
 	}
 }
