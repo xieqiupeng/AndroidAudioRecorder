@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <import type="com.twirling.libaec.model.SurfaceModel"/>
+
+        <import type="com.twirling.libaec.activity.SurfaceActivity"/>
+
+        <variable
+            name="presenter"
+            type="SurfaceActivity.Presenter"/>
+
+        <variable
+            name="item"
+            type="SurfaceModel"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <CheckBox
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@{item.aecTurnOn}"
+            android:onClick="@{(v)-> presenter.toggleAECTurnOn(v)}"
+            android:padding="30dp"
+            android:text="@string/aec"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@android:color/black"/>
+
+        <CheckBox
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@{item.ansTurnOn}"
+            android:enabled="@{item.aecTurnOn}"
+            android:onClick="@{(v)-> presenter.toggleANSTurnOn(v)}"
+            android:padding="30dp"
+            android:text="@string/ans"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@android:color/black"/>
+
+        <ToggleButton
+            android:id="@+id/tb"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="@{item.play}"
+            android:onClick="@{(v)-> presenter.togglePlay(v)}"
+            android:padding="30dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@android:color/black"
+            android:textOff="@string/play"
+            android:textOn="@string/stop"/>
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{(v)-> presenter.saveFile(v)}"
+            android:padding="30dp"
+            android:text="@string/save"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:visibility="gone"/>
+    </LinearLayout>
+</layout>

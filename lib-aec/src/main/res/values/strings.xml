@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">libaec</string>
+    <string name="play">PLAY</string>
+    <string name="stop">STOP</string>
+    <string name="ans">ANS TURN ON</string>
+    <string name="aec">AEC TURN ON</string>
+    <string name="save">SAVE FILE</string>
+</resources>

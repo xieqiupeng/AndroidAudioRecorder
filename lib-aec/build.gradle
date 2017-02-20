@@ -1,17 +1,16 @@
 apply plugin: 'com.android.library'
-
 group = 'com.github.xieqiupeng'
 version = setup.vname
 
 android {
-    compileSdkVersion setup.compileSdk
-    buildToolsVersion setup.buildTools
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion setup.minSdk
-        targetSdkVersion setup.targetSdk
-        versionCode setup.vcode
-        versionName setup.vname
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -22,26 +21,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['java']
-//            resources.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-            aidl.srcDirs = ['aidl']
-            renderscript.srcDirs = ['rs']
-            jni.srcDirs = []
-            jniLibs.srcDirs = ['libs']
-        }
-    }
     dataBinding {
         enabled = true
     }
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    sourceSets {
+        main {
+            assets.srcDirs = ['assets']
+            jni.srcDirs = [];
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 repositories {
@@ -50,14 +39,11 @@ repositories {
     }
 }
 
-// 指定编码
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "com.android.support:appcompat-v7:$versions.supportLib"
-    compile 'com.orhanobut:logger:1.11'
-    compile 'com.github.xieqiupeng:AecSDK:1.0.7'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    testCompile 'junit:junit:4.12'
 }

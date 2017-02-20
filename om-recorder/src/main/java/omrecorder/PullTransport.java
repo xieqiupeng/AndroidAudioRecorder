@@ -20,7 +20,7 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
 import com.twirling.audio.model.Sounddata1;
-import com.twirling.audioRun.api.AudioAecApi;
+import com.twirling.libaec.api.AudioAecApi;
 
 import java.io.IOException;
 import java.io.OutputStream;
