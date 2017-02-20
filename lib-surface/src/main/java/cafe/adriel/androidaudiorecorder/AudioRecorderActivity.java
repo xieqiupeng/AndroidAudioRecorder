@@ -311,6 +311,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			playView.setImageResource(R.drawable.aar_ic_play);
 
 			visualizerHandler = new VisualizerHandler();
+
+			visualizerView.onResume();
 			visualizerView.linkTo(visualizerHandler);
 			if (recorder == null) {
 				timerView.setText("00:00:00");
@@ -361,7 +363,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		private void stopRecording() {
 			arModel.setRestart(true);
 			arModel.setRecording(true);
-			visualizerView.onPause();
+//			visualizerView.onPause();
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();
