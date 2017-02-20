@@ -219,7 +219,6 @@ public interface PullTransport {
 					}
 //					writeAction.execute(toBytes(audioChunk.shorts), outputStream);
 //					toBytes(aecInputMic)
-//					audioChunk.toBytes()
 					writeAction.execute(toBytes(audioChunk.shorts), outputStream1);
 				} catch (Exception e) {
 					Log.w("", e.toString());

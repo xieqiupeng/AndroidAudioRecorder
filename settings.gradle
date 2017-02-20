@@ -1,5 +1,5 @@
 include ':app'
 include ':lib-surface'
 include ':om-recorder'
-include ':libaudio'
-include ':librecord'
+include ':lib-audio'
+include ':lib-aec'

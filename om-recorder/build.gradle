@@ -24,6 +24,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile project(':libaudio')
-    compile project(':librecord')
+    compile project(':lib-audio')
+    compile project(':lib-aec')
 }

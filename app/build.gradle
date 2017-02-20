@@ -57,7 +57,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile project(':lib-surface')
-//    compile project(':libaudio')
-//    compile project(':librecord')
 //    compile 'com.github.adrielcafe:AndroidAudioRecorder:0.1.0'
 }
