@@ -1,6 +1,5 @@
 package cafe.adriel.androidaudiorecorder.example;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.api.Constants;
@@ -24,8 +22,6 @@ import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 
 public class SurfaceActivity extends AppCompatActivity {
 	private static final int REQUEST_RECORD_AUDIO = 0;
@@ -56,20 +52,7 @@ public class SurfaceActivity extends AppCompatActivity {
 		Constants.SAMPLE_INDEX = 2;
 		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
 		//
-		new RxPermissions(SurfaceActivity.this)
-				.request(Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-				.subscribeOn(AndroidSchedulers.mainThread())
-				.subscribe(new Consumer<Boolean>() {
-					@Override
-					public void accept(Boolean aBoolean) throws Exception {
-						recordAudio(null);
-					}
-				}, new Consumer<Throwable>() {
-					@Override
-					public void accept(Throwable throwable) throws Exception {
-						Toast.makeText(SurfaceActivity.this, "请打开权限", Toast.LENGTH_LONG).show();
-					}
-				});
+		recordAudio(null);
 	}
 
 	@Override

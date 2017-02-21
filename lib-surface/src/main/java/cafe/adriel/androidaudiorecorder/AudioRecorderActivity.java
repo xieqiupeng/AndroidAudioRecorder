@@ -1,5 +1,6 @@
 package cafe.adriel.androidaudiorecorder;
 
+import android.Manifest;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.model.SurfaceModel;
@@ -33,6 +35,8 @@ import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioRecorderModel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import omrecorder.AudioChunk;
 import omrecorder.OmRecorder;
 import omrecorder.PullTransport;
@@ -264,7 +268,22 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (arModel.isRecording()) {
 				stopRecording();
 			} else {
-				resumeRecording();
+				new RxPermissions(AudioRecorderActivity.this)
+						.request(Manifest.permission.RECORD_AUDIO,
+								Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribeOn(AndroidSchedulers.mainThread())
+						.subscribe(new Consumer<Boolean>() {
+							@Override
+							public void accept(Boolean grant) throws Exception {
+								if (grant) {
+									resumeRecording();
+								} else {
+									Toast.makeText(AudioRecorderActivity.this, "请打开权限", Toast.LENGTH_LONG).show();
+								}
+							}
+						});
+
 			}
 			arModel.setRecording(!arModel.isRecording());
 		}
@@ -305,6 +324,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void resumeRecording() {
+
 			if (saveMenuItem != null)
 				saveMenuItem.setVisible(false);
 			statusView.setVisibility(View.VISIBLE);
