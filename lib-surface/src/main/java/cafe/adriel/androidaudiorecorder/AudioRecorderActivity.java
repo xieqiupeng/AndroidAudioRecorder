@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
 import com.twirling.audio.api.AudioProcessApi;
+import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
@@ -67,7 +68,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	private Thread audioThread;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		binding = DataBindingUtil.setContentView(this, R.layout.aar_activity_audio_recorder);
@@ -96,7 +97,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 //			getSupportActionBar().setDisplayShowTitleEnabled(false);
 //			getSupportActionBar().setElevation(0);
 //			getSupportActionBar().setBackgroundDrawable(
-//					new ColorDrawable(Util.getDarkerColor(arModel.getColor())));
+//					new ColorDrawable(PermissionUtil.getDarkerColor(arModel.getColor())));
 //			getSupportActionBar().setHomeAsUpIndicator(
 //					ContextCompat.getDrawable(this, R.drawable.aar_ic_clear));
 //		}
@@ -375,10 +376,10 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				recorder = null;
 			}
 			stopTimer();
-			stopAudio();
 			if (pullTransport != null) {
 				pullTransport.stopProcess();
 			}
+			stopAudio();
 			Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 		}
 
@@ -503,6 +504,10 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		if (audioProcessApi != null) {
 			audioProcessApi.stopPlay();
 			audioThread.interrupt();
+			try {
+				Sounddata1.getInstance().release();
+			} catch (Exception e) {
+			}
 		}
 	}
 

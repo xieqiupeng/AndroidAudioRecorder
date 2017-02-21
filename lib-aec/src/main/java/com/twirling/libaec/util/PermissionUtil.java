@@ -1,11 +1,11 @@
-package cafe.adriel.androidaudiorecorder.example;
+package com.twirling.libaec.util;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-public class Util {
+public class PermissionUtil {
 
     public static void requestPermission(Activity activity, String permission) {
         if (ContextCompat.checkSelfPermission(activity, permission)

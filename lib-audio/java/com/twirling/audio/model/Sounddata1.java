@@ -42,7 +42,6 @@ public class Sounddata1 {
 	}
 
 	public void getSpkCircleBuf(short[] src) {
-
 		if(firstFlag == true)
 		{
 			if(wpt<=0)

@@ -16,13 +16,12 @@
 package omrecorder;
 
 import android.media.AudioRecord;
-import android.media.audiofx.AcousticEchoCanceler;
-import android.os.Environment;
 import android.util.Log;
 
+import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.api.AudioAecApi;
-import com.twirling.audio.api.AudioProcessApi;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -89,7 +88,6 @@ public interface PullTransport {
 		public void stop() {
 
 
-
 			audioRecordSource.isEnableToBePulled(false);
 			audioRecordSource.audioRecorder().stop();
 		}
@@ -145,7 +143,6 @@ public interface PullTransport {
 			}
 			audioAecApi.stopProcess();
 
-			Sounddata1.getInstance().release();
 		}
 
 		public Default(AudioSource audioRecordSource,
@@ -224,7 +221,10 @@ public interface PullTransport {
 					int n2 = 0;
 					for (int i = 0; i < recordFrameNum; i++) {
 						audioProcessApi.soundPlay();
-						Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
+						try {
+							Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
+						} catch (Exception e) {
+						}
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}

@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.twirling.libaec.R;
 import com.twirling.libaec.api.AudioProcessApi;
-import com.twirling.libaec.util.Util;
+import com.twirling.libaec.util.PermissionUtil;
 import com.twirling.libaec.databinding.ActivitySurfaceBinding;
 import com.twirling.libaec.model.SurfaceModel;
 
@@ -31,7 +31,7 @@ public class SurfaceActivity extends AppCompatActivity {
 			surfaceModel.setPlay(savedInstanceState.getBoolean("isPlay", false));
 			surfaceModel.setAecTurnOn(savedInstanceState.getBoolean("turnOn", false));
 		}
-		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		PermissionUtil.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 	}
 
 	@Override

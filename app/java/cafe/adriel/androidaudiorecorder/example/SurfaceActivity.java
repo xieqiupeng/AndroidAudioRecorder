@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.api.Constants;
 import com.twirling.audio.utils.FileUtil;
@@ -22,6 +24,8 @@ import cafe.adriel.androidaudiorecorder.AndroidAudioRecorder;
 import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public class SurfaceActivity extends AppCompatActivity {
 	private static final int REQUEST_RECORD_AUDIO = 0;
@@ -41,21 +45,31 @@ public class SurfaceActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surface);
 		//
+		CrashReport.initCrashReport(getApplicationContext(), "8a09d6d42a", false);
+		//
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setBackgroundDrawable(
 					new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
 		}
-		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
-		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-		//
 		registerExitReceiver();
 		//
 		Constants.SAMPLE_INDEX = 2;
 		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
 		//
-//		play();
-		//
-		recordAudio(null);
+		new RxPermissions(SurfaceActivity.this)
+				.request(Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				.subscribeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Consumer<Boolean>() {
+					@Override
+					public void accept(Boolean aBoolean) throws Exception {
+						recordAudio(null);
+					}
+				}, new Consumer<Throwable>() {
+					@Override
+					public void accept(Throwable throwable) throws Exception {
+						Toast.makeText(SurfaceActivity.this, "请打开权限", Toast.LENGTH_LONG).show();
+					}
+				});
 	}
 
 	@Override
