@@ -190,11 +190,11 @@ public interface PullTransport {
 			aec.setEnabled(true);
 			OutputStream outputStream1 = FileUtil.getOutputStream();
 			while (audioRecordSource.isEnableToBePulled()) {
-				Log.w(PullTransport.class.getSimpleName(), audioRecord.getAudioSessionId() + " "
-						+ aec.getEnabled() + " "
-						+ aec.getId() + " "
-						+ aec.getDescriptor() + " "
-						+ AcousticEchoCanceler.isAvailable());
+//				Log.w(PullTransport.class.getSimpleName(), audioRecord.getAudioSessionId() + " "
+//						+ aec.getEnabled() + " "
+//						+ aec.getId() + " "
+//						+ aec.getDescriptor() + " "
+//						+ AcousticEchoCanceler.isAvailable());
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
 //				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
 				//
@@ -203,7 +203,6 @@ public interface PullTransport {
 						postPullEvent(audioChunk);
 					}
 				}
-				Log.w("123", Sounddata1.getInstance().spkCircleBuf.length + "");
 				try {
 					int n = 0;
 					int n2 = 0;
@@ -212,14 +211,13 @@ public interface PullTransport {
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}
-//						audioAecApi.doProcess(aecInputMic, aecInputSpk);
+						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
+						writeAction.execute(toBytes(aecInputMic), outputStream);
+						writeAction.execute(toBytes(aecInputSpk), outputStream1);
 					}
-//					writeAction.execute(toBytes(audioChunk.shorts), outputStream);
-//					toBytes(aecInputMic)
-					writeAction.execute(toBytes(audioChunk.shorts), outputStream1);
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}

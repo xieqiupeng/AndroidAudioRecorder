@@ -85,10 +85,10 @@ public class AudioProcessApi {
 		if (audioplayer != null) {
 			if (audioplayer.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
 				stopFlag = 1;
+				Sounddata1.getInstance().release();
 				audioplayer.stop();
 				audioplayer.release();
 				audioplayer = null;
-
 			}
 		}
 	}

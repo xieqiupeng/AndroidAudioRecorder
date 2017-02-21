@@ -8,9 +8,12 @@ public class Sounddata1 {
 	private static Sounddata1 instance = null;
 
 	private Sounddata1() {
+		wpt = 0;
+		rpt = 0;
+		spkCircleBuf = new short[FRAMESIZE * MAXFRAMES];
 	}
 
-	public static Sounddata1 getInstance() {
+	public synchronized static Sounddata1 getInstance() {
 		if (instance == null) {
 			instance = new Sounddata1();
 		}
@@ -19,11 +22,15 @@ public class Sounddata1 {
 
 	private static final int FRAMESIZE = 256;
 	private static final int MAXFRAMES = 200;
-	public short[] spkCircleBuf = new short[FRAMESIZE * MAXFRAMES];
-	public int numberOfShortsRead = 0;
 	private int wpt = 0;
 	private int rpt = 0;
+	private short[] spkCircleBuf = null;
+	private int numberOfShortsRead = 0;
 	private boolean firstFlag = true;
+
+	public void release() {
+		instance = null;
+	}
 
 	public void setSpkCircleBuf(short[] src) {
 		System.arraycopy(src, 0, spkCircleBuf, wpt, src.length);
@@ -34,11 +41,10 @@ public class Sounddata1 {
 	}
 
 	public void getSpkCircleBuf(short[] src) {
-		if(firstFlag == true)
-		{
+		if (firstFlag == true) {
 			firstFlag = false;
-			rpt = wpt - FRAMESIZE*21;
-			if(rpt<0) rpt = 0;
+			rpt = wpt - FRAMESIZE * 21;
+			if (rpt < 0) rpt = 0;
 		}
 		System.arraycopy(spkCircleBuf, rpt, src, 0, src.length);
 		rpt += FRAMESIZE;
@@ -66,5 +72,13 @@ public class Sounddata1 {
 			byteIndex += 2;
 		}
 		return buffer;
+	}
+
+	public int getWpt() {
+		return wpt;
+	}
+
+	public int getRpt() {
+		return rpt;
 	}
 }
