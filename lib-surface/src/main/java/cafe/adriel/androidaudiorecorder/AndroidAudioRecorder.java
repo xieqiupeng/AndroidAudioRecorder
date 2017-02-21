@@ -24,7 +24,7 @@ public class AndroidAudioRecorder {
     private String filePath = Environment.getExternalStorageDirectory() + "/recorded_audio.wav";
     private AudioSource source = AudioSource.MIC;
     private AudioChannel channel = AudioChannel.STEREO;
-    private AudioSampleRate sampleRate = AudioSampleRate.HZ_44100;
+    private AudioSampleRate sampleRate = AudioSampleRate.HZ_32000;
     private int color = Color.parseColor("#546E7A");
     private int requestCode = 0;
     private boolean autoStart = false;

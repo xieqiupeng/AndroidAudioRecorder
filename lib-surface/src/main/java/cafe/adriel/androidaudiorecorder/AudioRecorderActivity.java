@@ -318,7 +318,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (recorder == null) {
 				timerView.setText("00:00:00");
 				//
-				playAudio();
+				//playAudio();
 				// TODO
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),

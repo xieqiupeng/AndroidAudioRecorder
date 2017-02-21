@@ -17,11 +17,12 @@ package omrecorder;
 
 import android.media.AudioRecord;
 import android.media.audiofx.AcousticEchoCanceler;
+import android.os.Environment;
 import android.util.Log;
 
 import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.api.AudioAecApi;
-
+import com.twirling.audio.api.AudioProcessApi;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -86,6 +87,9 @@ public interface PullTransport {
 
 		@Override
 		public void stop() {
+
+
+
 			audioRecordSource.isEnableToBePulled(false);
 			audioRecordSource.audioRecorder().stop();
 		}
@@ -132,9 +136,16 @@ public interface PullTransport {
 		private int recordFrameSize = 0;
 		private int recordFrameNum = 0;
 		private AudioAecApi audioAecApi;
+		private AudioProcessApi audioProcessApi;
+		String fileName = "sdcard/music/mono.wav";
 
 		public void stopProcess() {
+			if (audioProcessApi != null) {
+				audioProcessApi.stopPlay();
+			}
 			audioAecApi.stopProcess();
+
+			Sounddata1.getInstance().release();
 		}
 
 		public Default(AudioSource audioRecordSource,
@@ -147,10 +158,19 @@ public interface PullTransport {
 			recordFrameNum = (int) (Math.ceil((float) recordFrameSize / FRAMESIZE)); //check
 			recordFrameSize = recordFrameNum * FRAMESIZE;
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
-//			Log.w("xqp", audioChunk.shorts.length + "");
+			Log.w("xqp", audioChunk.shorts.length + "");
+
+
+			audioProcessApi = new AudioProcessApi();
+			audioProcessApi.init();
+			audioProcessApi.LoadWavFile(fileName);
+			//int sysdelayEst = (recordFrameSize/2) + (audioProcessApi.getPlayBufferSize()*2);
+			int sysdelayEst = 11000;
+
 			// 处理aec
 			audioAecApi = new AudioAecApi();
-			audioAecApi.init();
+			audioAecApi.init(sysdelayEst);
+			Log.w("sysdelay", sysdelayEst + "");
 		}
 
 		public Default(AudioSource audioRecordSource, WriteAction writeAction) {
@@ -186,15 +206,10 @@ public interface PullTransport {
 		@Override
 		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
 		                            OutputStream outputStream) throws IOException {
-			AcousticEchoCanceler aec = AcousticEchoCanceler.create(audioRecord.getAudioSessionId());
-			aec.setEnabled(true);
+
 			OutputStream outputStream1 = FileUtil.getOutputStream();
 			while (audioRecordSource.isEnableToBePulled()) {
-//				Log.w(PullTransport.class.getSimpleName(), audioRecord.getAudioSessionId() + " "
-//						+ aec.getEnabled() + " "
-//						+ aec.getId() + " "
-//						+ aec.getDescriptor() + " "
-//						+ AcousticEchoCanceler.isAvailable());
+
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
 //				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
 				//
@@ -203,21 +218,26 @@ public interface PullTransport {
 						postPullEvent(audioChunk);
 					}
 				}
+				//Log.w("123", Sounddata1.getInstance().spkCircleBuf.length + "");
 				try {
 					int n = 0;
 					int n2 = 0;
 					for (int i = 0; i < recordFrameNum; i++) {
+						audioProcessApi.soundPlay();
 						Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}
+						writeAction.execute(toBytes(aecInputMic), outputStream1);
+
 						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
 						writeAction.execute(toBytes(aecInputMic), outputStream);
-						writeAction.execute(toBytes(aecInputSpk), outputStream1);
+
 					}
+
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}

@@ -33,7 +33,7 @@ final class WavHeader {
 	 * Returns the {@code WavHeader} in bytes.
 	 */
 	public byte[] toBytes() {
-		long sampleRateInHz = 44100;
+		long sampleRateInHz = 32000;
 		int channels = 1;
 		byte bitsPerSample = 16;
 

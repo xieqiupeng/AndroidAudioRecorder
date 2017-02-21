@@ -26,22 +26,22 @@ public class AudioAecApi {
 	//
 	private VoiceProcessing aecInst;
 	private static final int FRAME_SIZE = 256;
-	private static final int SAMPLE_RATE = 44100;
+	private static final int SAMPLE_RATE = 32000;
 	private static final int iInChan = 1;
 	private static final int iOutChan = 1;
 	private long instance = 0;
 	//
 	boolean enableRes = true;
-	float resLevel = 0.5f;
+	float resLevel = 0.1f;
 	boolean enableNS = true;
 	float nsDB = -10.0f;
 	boolean enableSpkClip = false;
-	float spkClipThd = 1.0f;
+	float spkClipThd = 0.5f;
 	float maxCoupling = 10.0f;
 
-	public void init() {
+	public void init(int sysdelay) {
 		aecInst = new VoiceProcessing();
-		instance = aecInst.aecInit(FRAME_SIZE, iInChan, SAMPLE_RATE, 7500, false);
+		instance = aecInst.aecInit(FRAME_SIZE, iInChan, SAMPLE_RATE, sysdelay, false);
 		aecInst.aecSet(instance, enableRes, resLevel, enableNS, nsDB, enableSpkClip, spkClipThd, maxCoupling);
 	}
 

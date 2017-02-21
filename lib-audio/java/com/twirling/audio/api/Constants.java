@@ -47,10 +47,10 @@ public class Constants {
      * Could be 44100 or 48000 now.
      */
     public static final int[] SAMPLE_RATE = {
-            44100,
-            44100,
-            44100,
-            44100
+            32000,
+            32000,
+            32000,
+            32000
     };
 
     /**

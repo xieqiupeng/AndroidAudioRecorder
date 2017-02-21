@@ -18,7 +18,7 @@ public class FileUtil {
 	private static String path = Environment.getExternalStorageDirectory()
 			+ "/"
 			+ Environment.DIRECTORY_MUSIC
-			+ "/audio_processed.wav";
+			+ "/audio_mic.wav";
 
 	private static File file = null;
 	private static RandomAccessFile wavFile;

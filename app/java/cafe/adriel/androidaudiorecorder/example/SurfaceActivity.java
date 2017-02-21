@@ -28,7 +28,7 @@ public class SurfaceActivity extends AppCompatActivity {
 	private static final String AUDIO_FILE_PATH =
 			Environment.getExternalStorageDirectory().getPath()
 					+ "/"
-					+ Environment.DIRECTORY_MUSIC + "/audio_recorded.wav";
+					+ Environment.DIRECTORY_MUSIC + "/audio_processed.wav";
 	private AudioProcessApi audioProcessApi;
 	private Thread audioThread;
 	private String wavFilePath;
@@ -85,7 +85,7 @@ public class SurfaceActivity extends AppCompatActivity {
 				// Optional
 				.setSource(AudioSource.MIC)
 				.setChannel(AudioChannel.MONO)
-				.setSampleRate(AudioSampleRate.HZ_44100)
+				.setSampleRate(AudioSampleRate.HZ_32000)
 				.setAutoStart(false)
 				.setKeepDisplayOn(true)
 				// Start recording

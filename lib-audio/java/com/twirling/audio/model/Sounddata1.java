@@ -1,5 +1,7 @@
 package com.twirling.audio.model;
 
+import android.util.Log;
+
 /**
  * Created by xieqi on 2017/2/15.
  */
@@ -21,13 +23,12 @@ public class Sounddata1 {
 	}
 
 	private static final int FRAMESIZE = 256;
-	private static final int MAXFRAMES = 200;
+	private static final int MAXFRAMES = 10;
 	private int wpt = 0;
 	private int rpt = 0;
 	private short[] spkCircleBuf = null;
 	private int numberOfShortsRead = 0;
 	private boolean firstFlag = true;
-
 	public void release() {
 		instance = null;
 	}
@@ -41,17 +42,23 @@ public class Sounddata1 {
 	}
 
 	public void getSpkCircleBuf(short[] src) {
-		if (firstFlag == true) {
+
+		if(firstFlag == true)
+		{
+			if(wpt<=0)
+			{
+				return;
+			}
 			firstFlag = false;
-			rpt = wpt - FRAMESIZE * 21;
-			if (rpt < 0) rpt = 0;
+			rpt = wpt - FRAMESIZE;
+			if(rpt<0) rpt += FRAMESIZE * MAXFRAMES;
 		}
 		System.arraycopy(spkCircleBuf, rpt, src, 0, src.length);
 		rpt += FRAMESIZE;
 		if (rpt >= FRAMESIZE * MAXFRAMES) {
 			rpt = 0;
 		}
-		//Log.w("wpt&rpt", wpt + ", " + rpt);
+		Log.w("wpt_rpt", wpt + ", " + rpt);
 	}
 
 	public boolean isEmpty() {
@@ -73,7 +80,6 @@ public class Sounddata1 {
 		}
 		return buffer;
 	}
-
 	public int getWpt() {
 		return wpt;
 	}
