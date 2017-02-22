@@ -140,7 +140,7 @@ public interface PullTransport {
 			if (audioProcessApi != null) {
 				audioProcessApi.stopPlay();
 			}
-			audioAecApi.stopProcess();
+//			audioAecApi.stopProcess();
 			Log.i("release!", "release");
 			Sounddata1.getInstance().release();
 		}
