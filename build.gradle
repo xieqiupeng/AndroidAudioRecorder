@@ -8,8 +8,7 @@ buildscript {
                  vcode     : 1,
                  vname     : "1.0.0"]
         //
-        versions = [supportLib: "25.1.0",
-                    libRxJava : "2.0.1"]
+        versions = [supportLib: "25.1.0"]
     }
     repositories {
         jcenter()

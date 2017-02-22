@@ -9,9 +9,9 @@ import cafe.adriel.androidaudiorecorder.R;
 
 public class AudioRecorderModel extends BaseObservable {
 	private String filePath;
-	private AudioSource source = AudioSource.MIC;
-	private AudioChannel channel = AudioChannel.STEREO;
-	private AudioSampleRate sampleRate = AudioSampleRate.HZ_32000;
+	private AudioSource source;
+	private AudioChannel channel;
+	private AudioSampleRate sampleRate;
 	private int color;
 	private boolean autoStart;
 	private boolean keepDisplayOn;
