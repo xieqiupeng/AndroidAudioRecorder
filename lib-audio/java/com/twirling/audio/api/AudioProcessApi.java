@@ -57,7 +57,6 @@ public class AudioProcessApi {
 
 
 	public void soundPlay() {
-
 		int i;
 		int n;
 		short[] sounddataFrame = new short[frameSize * iOutChan];
@@ -86,11 +85,8 @@ public class AudioProcessApi {
 		if (audioplayer != null) {
 			if (audioplayer.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
 				stopFlag = 1;
-				//Sounddata1.getInstance().release();
-				audioplayer.stop();
 				audioplayer.release();
 				audioplayer = null;
-
 			}
 		}
 	}

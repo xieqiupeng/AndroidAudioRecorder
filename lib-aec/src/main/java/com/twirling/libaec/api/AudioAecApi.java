@@ -16,6 +16,8 @@
 
 package com.twirling.libaec.api;
 
+import android.util.Log;
+
 import com.twirling.audio.VoiceProcessing;
 import com.twirling.libaec.model.SurfaceModel;
 
@@ -82,6 +84,8 @@ public class AudioAecApi {
 	}
 
 	public void stopProcess() {
+		Log.i("aecRelease!", "aecRelease1");
 		aecInst.aecRelease(instance);
+		Log.i("aecRelease!", "aecRelease2");
 	}
 }

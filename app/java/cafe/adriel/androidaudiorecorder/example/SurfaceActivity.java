@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -66,14 +65,9 @@ public class SurfaceActivity extends AppCompatActivity {
 				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
 			}
 		}
-		if (audioProcessApi != null) {
-			audioProcessApi.stopPlay();
-			audioThread.interrupt();
-		}
 	}
 
 	public void recordAudio(View v) {
-		//
 		AndroidAudioRecorder.with(this)
 				// Required
 				.setFilePath(AUDIO_FILE_PATH)
@@ -87,27 +81,6 @@ public class SurfaceActivity extends AppCompatActivity {
 				.setKeepDisplayOn(true)
 				// Start recording
 				.record();
-	}
-
-	public void play() {
-		audioThread = new Thread(
-				new Runnable() {
-					public void run() {
-						// Start spatial audio playback of SOUND_FILE at the model postion. The returned
-						//soundId handle is stored and allows for repositioning the sound object whenever
-						// the cube position changes.
-						Thread.currentThread().getName();
-						audioProcessApi = new AudioProcessApi();
-						audioProcessApi.init();
-						try {
-							audioProcessApi.LoadWavFile(wavFilePath);
-							audioProcessApi.soundPlay();
-						} catch (Exception e) {
-							Log.w("", e.toString());
-						}
-					}
-				});
-		audioThread.start();
 	}
 
 	private void registerExitReceiver() {

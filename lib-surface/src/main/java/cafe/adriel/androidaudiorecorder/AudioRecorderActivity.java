@@ -22,8 +22,6 @@ import android.widget.Toast;
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.twirling.audio.api.AudioProcessApi;
-import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
@@ -64,12 +62,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	private PullTransport.Default pullTransport;
 	private Presenter presenter;
 	private AarActivityAudioRecorderBinding binding;
+	private boolean backpress = false;
 	//
-	AudioProcessApi audioProcessApi;
 	String fileName = Environment.getExternalStorageDirectory().getPath()
 			+ "/"
 			+ Environment.DIRECTORY_DOWNLOADS + "/mono.wav";
-	private Thread audioThread;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -183,7 +180,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		if (arModel.isAutoStart() && !arModel.isRecording()) {
-			presenter.toggleRecording(null);
+//			presenter.toggleRecording(null);
 		}
 	}
 
@@ -198,7 +195,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 
 	@Override
 	protected void onPause() {
-		presenter.restartRecording(null);
+//		presenter.restartRecording(null);
 		try {
 			visualizerView.onPause();
 		} catch (Exception e) {
@@ -224,25 +221,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		super.onSaveInstanceState(outState);
 	}
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		getMenuInflater().inflate(R.menu.aar_audio_recorder, menu);
-//		saveMenuItem = menu.findItem(R.id.action_save);
-//		saveMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.aar_ic_check));
-//		return super.onCreateOptionsMenu(menu);
-//	}
-//
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		int i = item.getItemId();
-//		if (i == android.R.id.home) {
-//			finish();
-//		} else if (i == R.id.action_save) {
-//			presenter.selectAudio();
-//		}
-//		return super.onOptionsItemSelected(item);
-//	}
-
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		presenter.stopPlaying();
@@ -258,11 +236,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			SurfaceModel.getInstance().setAnsTurnOn(!SurfaceModel.getInstance().isAnsTurnOn());
 		}
 
-		private void selectAudio() {
-			stopRecording();
-			setResult(RESULT_OK);
-			finish();
-		}
+//		private void selectAudio() {
+//			stopRecording();
+//			setResult(RESULT_OK);
+//			finish();
+//		}
 
 		public void toggleRecording(View v) {
 			if (arModel.isRecording()) {
@@ -283,7 +261,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 								}
 							}
 						});
-
 			}
 			arModel.setRecording(!arModel.isRecording());
 		}
@@ -303,9 +280,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void restartRecording(View v) {
-			if (arModel.isRecording()) {
-				stopRecording();
-			} else if (isPlaying()) {
+			if (isPlaying()) {
 				stopPlaying();
 			} else {
 				visualizerHandler = new VisualizerHandler();
@@ -324,7 +299,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void resumeRecording() {
-
 			if (saveMenuItem != null)
 				saveMenuItem.setVisible(false);
 			statusView.setVisibility(View.VISIBLE);
@@ -337,10 +311,11 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			visualizerView.onResume();
 			visualizerView.linkTo(visualizerHandler);
 			if (recorder == null) {
-				timerView.setText("00:00:00");
+				arModel.setTime("00:00:00");
+				arModel.setSource(AudioSource.MIC);
+				arModel.setChannel(AudioChannel.MONO);
+				arModel.setSampleRate(AudioSampleRate.HZ_32000);
 				//
-				//playAudio();
-				// TODO
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),
 						new PullTransport.OnAudioChunkPulledListener() {
@@ -383,9 +358,9 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void stopRecording() {
+			Log.i("stopRecording!", "stopRecording");
 			arModel.setRestart(true);
 			arModel.setRecording(true);
-//			visualizerView.onPause();
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();
@@ -394,13 +369,13 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (recorder != null) {
 				recorder.stopRecording();
 				recorder = null;
+				Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 			}
 			stopTimer();
 			if (pullTransport != null) {
 				pullTransport.stopProcess();
+				pullTransport = null;
 			}
-			stopAudio();
-			Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 		}
 
 		private void startPlaying() {
@@ -499,40 +474,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 	}
 
-	private void playAudio() {
-		audioThread = new Thread(
-				new Runnable() {
-					public void run() {
-						// Start spatial audio playback of SOUND_FILE at the model postion. The returned
-						//soundId handle is stored and allows for repositioning the sound object whenever
-						// the cube position changes.
-						Thread.currentThread().getName();
-						audioProcessApi = new AudioProcessApi();
-						audioProcessApi.init();
-						try {
-							audioProcessApi.LoadWavFile(fileName);
-							audioProcessApi.soundPlay();
-						} catch (Exception e) {
-							Log.w("", e.toString());
-						}
-					}
-				});
-		audioThread.start();
-	}
-
-	private void stopAudio() {
-		if (audioProcessApi != null) {
-			audioProcessApi.stopPlay();
-			audioThread.interrupt();
-			try {
-				Sounddata1.getInstance().release();
-			} catch (Exception e) {
-			}
-		}
-	}
-
 	@Override
 	public void onBackPressed() {
+		if (!backpress) {
+			presenter.stopRecording();
+		}
+		backpress = true;
 		setResult(RESULT_OK);
 		finish();
 	}

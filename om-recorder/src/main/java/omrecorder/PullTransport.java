@@ -86,8 +86,6 @@ public interface PullTransport {
 
 		@Override
 		public void stop() {
-
-
 			audioRecordSource.isEnableToBePulled(false);
 			audioRecordSource.audioRecorder().stop();
 		}
@@ -138,11 +136,13 @@ public interface PullTransport {
 		String fileName = "sdcard/music/mono.wav";
 
 		public void stopProcess() {
+			Log.i("stopProcess!", "stopProcess");
 			if (audioProcessApi != null) {
 				audioProcessApi.stopPlay();
 			}
 			audioAecApi.stopProcess();
-
+			Log.i("release!", "release");
+			Sounddata1.getInstance().release();
 		}
 
 		public Default(AudioSource audioRecordSource,
@@ -156,7 +156,6 @@ public interface PullTransport {
 			recordFrameSize = recordFrameNum * FRAMESIZE;
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
 			Log.w("xqp", audioChunk.shorts.length + "");
-
 
 			audioProcessApi = new AudioProcessApi();
 			audioProcessApi.init();
@@ -221,15 +220,11 @@ public interface PullTransport {
 					int n2 = 0;
 					for (int i = 0; i < recordFrameNum; i++) {
 						audioProcessApi.soundPlay();
-						try {
-							Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
-						} catch (Exception e) {
-						}
+						Sounddata1.getInstance().getSpkCircleBuf(aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}
 						writeAction.execute(toBytes(aecInputMic), outputStream1);
-
 						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
