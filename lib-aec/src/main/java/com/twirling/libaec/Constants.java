@@ -6,8 +6,7 @@ package com.twirling.libaec;
 public class Constants {
     // Sample demo Index ，from 0  3
     public static int SAMPLE_INDEX = 2;
-    public static boolean aecturnOn = false;
-    public static boolean ansturnOn = false;
+
     /**
      * Sample FILE_NAME
      * Four music
