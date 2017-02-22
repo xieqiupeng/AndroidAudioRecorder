@@ -1,6 +1,5 @@
 package cafe.adriel.androidaudiorecorder;
 
-import android.Manifest;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -21,7 +20,6 @@ import android.widget.Toast;
 
 import com.cleveroad.audiovisualization.DbmHandler;
 import com.cleveroad.audiovisualization.GLAudioVisualizationView;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.twirling.libaec.model.SurfaceModel;
 
 import java.io.File;
@@ -33,8 +31,6 @@ import cafe.adriel.androidaudiorecorder.model.AudioChannel;
 import cafe.adriel.androidaudiorecorder.model.AudioRecorderModel;
 import cafe.adriel.androidaudiorecorder.model.AudioSampleRate;
 import cafe.adriel.androidaudiorecorder.model.AudioSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import omrecorder.AudioChunk;
 import omrecorder.OmRecorder;
 import omrecorder.PullTransport;
@@ -62,14 +58,14 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	private PullTransport.Default pullTransport;
 	private Presenter presenter;
 	private AarActivityAudioRecorderBinding binding;
-	private boolean backpress = false;
 	//
 	String fileName = Environment.getExternalStorageDirectory().getPath()
 			+ "/"
 			+ Environment.DIRECTORY_DOWNLOADS + "/mono.wav";
 
+
 	@Override
-	protected void onCreate(final Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		binding = DataBindingUtil.setContentView(this, R.layout.aar_activity_audio_recorder);
@@ -98,7 +94,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 //			getSupportActionBar().setDisplayShowTitleEnabled(false);
 //			getSupportActionBar().setElevation(0);
 //			getSupportActionBar().setBackgroundDrawable(
-//					new ColorDrawable(PermissionUtil.getDarkerColor(arModel.getColor())));
+//					new ColorDrawable(Util.getDarkerColor(arModel.getColor())));
 //			getSupportActionBar().setHomeAsUpIndicator(
 //					ContextCompat.getDrawable(this, R.drawable.aar_ic_clear));
 //		}
@@ -180,7 +176,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		if (arModel.isAutoStart() && !arModel.isRecording()) {
-//			presenter.toggleRecording(null);
+			presenter.toggleRecording(null);
 		}
 	}
 
@@ -195,7 +191,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 
 	@Override
 	protected void onPause() {
-//		presenter.restartRecording(null);
+		presenter.restartRecording(null);
 		try {
 			visualizerView.onPause();
 		} catch (Exception e) {
@@ -221,6 +217,25 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		super.onSaveInstanceState(outState);
 	}
 
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		getMenuInflater().inflate(R.menu.aar_audio_recorder, menu);
+//		saveMenuItem = menu.findItem(R.id.action_save);
+//		saveMenuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.aar_ic_check));
+//		return super.onCreateOptionsMenu(menu);
+//	}
+//
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		int i = item.getItemId();
+//		if (i == android.R.id.home) {
+//			finish();
+//		} else if (i == R.id.action_save) {
+//			presenter.selectAudio();
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
+
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		presenter.stopPlaying();
@@ -236,31 +251,17 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			SurfaceModel.getInstance().setAnsTurnOn(!SurfaceModel.getInstance().isAnsTurnOn());
 		}
 
-//		private void selectAudio() {
-//			stopRecording();
-//			setResult(RESULT_OK);
-//			finish();
-//		}
+		private void selectAudio() {
+			stopRecording();
+			setResult(RESULT_OK);
+			finish();
+		}
 
 		public void toggleRecording(View v) {
 			if (arModel.isRecording()) {
 				stopRecording();
 			} else {
-				new RxPermissions(AudioRecorderActivity.this)
-						.request(Manifest.permission.RECORD_AUDIO,
-								Manifest.permission.WRITE_EXTERNAL_STORAGE)
-						.observeOn(AndroidSchedulers.mainThread())
-						.subscribeOn(AndroidSchedulers.mainThread())
-						.subscribe(new Consumer<Boolean>() {
-							@Override
-							public void accept(Boolean grant) throws Exception {
-								if (grant) {
-									resumeRecording();
-								} else {
-									Toast.makeText(AudioRecorderActivity.this, "请打开权限", Toast.LENGTH_LONG).show();
-								}
-							}
-						});
+				resumeRecording();
 			}
 			arModel.setRecording(!arModel.isRecording());
 		}
@@ -280,7 +281,9 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void restartRecording(View v) {
-			if (isPlaying()) {
+			if (arModel.isRecording()) {
+				stopRecording();
+			} else if (isPlaying()) {
 				stopPlaying();
 			} else {
 				visualizerHandler = new VisualizerHandler();
@@ -311,11 +314,10 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			visualizerView.onResume();
 			visualizerView.linkTo(visualizerHandler);
 			if (recorder == null) {
-				arModel.setTime("00:00:00");
-				arModel.setSource(AudioSource.MIC);
-				arModel.setChannel(AudioChannel.MONO);
-				arModel.setSampleRate(AudioSampleRate.HZ_32000);
+				timerView.setText("00:00:00");
 				//
+				//playAudio();
+				// TODO
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),
 						new PullTransport.OnAudioChunkPulledListener() {
@@ -358,9 +360,9 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void stopRecording() {
-			Log.i("stopRecording!", "stopRecording");
 			arModel.setRestart(true);
 			arModel.setRecording(true);
+//			visualizerView.onPause();
 			visualizerView.release();
 			if (visualizerHandler != null) {
 				visualizerHandler.stop();
@@ -369,13 +371,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (recorder != null) {
 				recorder.stopRecording();
 				recorder = null;
-				Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 			}
 			stopTimer();
 			if (pullTransport != null) {
 				pullTransport.stopProcess();
-				pullTransport = null;
 			}
+			Toast.makeText(AudioRecorderActivity.this, "Audio recorded successfully!", Toast.LENGTH_SHORT).show();
 		}
 
 		private void startPlaying() {
@@ -474,12 +475,10 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 	}
 
+
+
 	@Override
 	public void onBackPressed() {
-		if (!backpress) {
-			presenter.stopRecording();
-		}
-		backpress = true;
 		setResult(RESULT_OK);
 		finish();
 	}

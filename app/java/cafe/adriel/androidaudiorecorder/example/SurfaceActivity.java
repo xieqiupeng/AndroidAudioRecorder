@@ -1,5 +1,6 @@
 package cafe.adriel.androidaudiorecorder.example;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +10,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.tencent.bugly.crashreport.CrashReport;
 import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.api.Constants;
 import com.twirling.audio.utils.FileUtil;
@@ -24,10 +25,7 @@ import cafe.adriel.androidaudiorecorder.model.AudioSource;
 
 public class SurfaceActivity extends AppCompatActivity {
 	private static final int REQUEST_RECORD_AUDIO = 0;
-	private static final String AUDIO_FILE_PATH =
-			Environment.getExternalStorageDirectory().getPath()
-					+ "/"
-					+ Environment.DIRECTORY_MUSIC + "/audio_processed.wav";
+	private static final String AUDIO_FILE_PATH ="sdcard/music/audio_processed.wav";
 	private AudioProcessApi audioProcessApi;
 	private Thread audioThread;
 	private String wavFilePath;
@@ -40,16 +38,19 @@ public class SurfaceActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_surface);
 		//
-		CrashReport.initCrashReport(getApplicationContext(), "8a09d6d42a", false);
-		//
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setBackgroundDrawable(
 					new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
 		}
+//		Util.requestPermission(this, Manifest.permission.RECORD_AUDIO);
+//		Util.requestPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		//
 		registerExitReceiver();
 		//
 		Constants.SAMPLE_INDEX = 2;
 		wavFilePath = FileUtil.copyAssetFileToFiles(SurfaceActivity.this, Constants.FILE_NAME[Constants.SAMPLE_INDEX]);
+		//
+//		play();
 		//
 		recordAudio(null);
 	}
@@ -65,9 +66,14 @@ public class SurfaceActivity extends AppCompatActivity {
 				Toast.makeText(this, "Audio was not recorded", Toast.LENGTH_SHORT).show();
 			}
 		}
+		if (audioProcessApi != null) {
+			audioProcessApi.stopPlay();
+			audioThread.interrupt();
+		}
 	}
 
 	public void recordAudio(View v) {
+		//
 		AndroidAudioRecorder.with(this)
 				// Required
 				.setFilePath(AUDIO_FILE_PATH)
@@ -81,6 +87,27 @@ public class SurfaceActivity extends AppCompatActivity {
 				.setKeepDisplayOn(true)
 				// Start recording
 				.record();
+	}
+
+	public void play() {
+		audioThread = new Thread(
+				new Runnable() {
+					public void run() {
+						// Start spatial audio playback of SOUND_FILE at the model postion. The returned
+						//soundId handle is stored and allows for repositioning the sound object whenever
+						// the cube position changes.
+						Thread.currentThread().getName();
+						audioProcessApi = new AudioProcessApi();
+						audioProcessApi.init();
+						try {
+							audioProcessApi.LoadWavFile(wavFilePath);
+							audioProcessApi.soundPlay();
+						} catch (Exception e) {
+							Log.w("", e.toString());
+						}
+					}
+				});
+		audioThread.start();
 	}
 
 	private void registerExitReceiver() {
