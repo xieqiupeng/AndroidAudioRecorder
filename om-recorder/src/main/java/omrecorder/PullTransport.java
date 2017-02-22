@@ -16,13 +16,12 @@
 package omrecorder;
 
 import android.media.AudioRecord;
-import android.media.audiofx.AcousticEchoCanceler;
-import android.os.Environment;
 import android.util.Log;
 
+import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.api.AudioAecApi;
-import com.twirling.audio.api.AudioProcessApi;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -87,9 +86,6 @@ public interface PullTransport {
 
 		@Override
 		public void stop() {
-
-
-
 			audioRecordSource.isEnableToBePulled(false);
 			audioRecordSource.audioRecorder().stop();
 		}
@@ -128,6 +124,7 @@ public interface PullTransport {
 	final class Default extends AbstractPullTransport {
 
 		private final WriteAction writeAction;
+		private final WriteAction writeAction2;
 		private final AudioChunk.Shorts audioChunk;
 		private final int FRAMESIZE = 512;
 		private short[] aecInputMic = new short[FRAMESIZE / 2];
@@ -139,12 +136,12 @@ public interface PullTransport {
 		String fileName = "sdcard/music/mono.wav";
 
 		public void stopProcess() {
+			Log.i("stopProcess!", "stopProcess");
 			if (audioProcessApi != null) {
 				audioProcessApi.stopPlay();
 			}
-			if (audioAecApi != null) {
-				//audioAecApi.stopProcess();
-			}
+//			audioAecApi.stopProcess();
+			Log.i("release!", "release");
 			Sounddata1.getInstance().release();
 		}
 
@@ -153,12 +150,12 @@ public interface PullTransport {
 		               WriteAction writeAction) {
 			super(audioRecordSource, onAudioChunkPulledListener);
 			this.writeAction = writeAction;
+			writeAction2 = new WriteAction.Default();
 			recordFrameSize = audioRecordSource.minimumBufferSize();
 			recordFrameNum = (int) (Math.ceil((float) recordFrameSize / FRAMESIZE)); //check
 			recordFrameSize = recordFrameNum * FRAMESIZE;
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
 			Log.w("xqp", audioChunk.shorts.length + "");
-
 
 			audioProcessApi = new AudioProcessApi();
 			audioProcessApi.init();
@@ -228,9 +225,7 @@ public interface PullTransport {
 							aecInputMic[j] = audioChunk.shorts[n++];
 						}
 						writeAction.execute(toBytes(aecInputMic), outputStream1);
-						if (audioAecApi != null) {
-							audioAecApi.doProcess(aecInputMic, aecInputSpk);
-						}
+						audioAecApi.doProcess(aecInputMic, aecInputSpk);
 						for (int j = 0; j < FRAMESIZE / 2; j++) {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}

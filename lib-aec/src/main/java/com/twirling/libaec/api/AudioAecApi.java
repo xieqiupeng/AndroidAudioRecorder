@@ -16,6 +16,8 @@
 
 package com.twirling.libaec.api;
 
+import android.util.Log;
+
 import com.twirling.audio.VoiceProcessing;
 import com.twirling.libaec.model.SurfaceModel;
 
@@ -37,7 +39,7 @@ public class AudioAecApi {
 	float nsDB = -10.0f;
 	boolean enableSpkClip = false;
 	float spkClipThd = 0.5f;
-	float maxCoupling = 20.0f;
+	float maxCoupling = 10.0f;
 
 	public void init(int sysdelay) {
 		aecInst = new VoiceProcessing();
@@ -82,12 +84,8 @@ public class AudioAecApi {
 	}
 
 	public void stopProcess() {
-		if(instance!=0) {
-			if(aecInst!=null) {
-				aecInst.aecRelease(instance);
-				aecInst = null;
-			}
-			instance = 0;
-		}
+		Log.i("aecRelease!", "aecRelease1");
+		aecInst.aecRelease(instance);
+		Log.i("aecRelease!", "aecRelease2");
 	}
 }

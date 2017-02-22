@@ -53,13 +53,10 @@ public class AudioProcessApi {
 
 	public void init() {
 
-
-
 	}
 
 
 	public void soundPlay() {
-
 		int i;
 		int n;
 		short[] sounddataFrame = new short[frameSize * iOutChan];
@@ -88,11 +85,8 @@ public class AudioProcessApi {
 		if (audioplayer != null) {
 			if (audioplayer.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
 				stopFlag = 1;
-				//Sounddata1.getInstance().release();
-				audioplayer.stop();
 				audioplayer.release();
 				audioplayer = null;
-
 			}
 		}
 	}
@@ -210,9 +204,6 @@ public class AudioProcessApi {
 
 				// this will cause a seamless loop
 				tempfs.close();
-
-				//int bufsize = audioplayer.getBufferSizeInFrames();
-				//Log.w("getBufferSizeInFrames", bufsize + "");
 
 				audioplayer.play();
 				return true;

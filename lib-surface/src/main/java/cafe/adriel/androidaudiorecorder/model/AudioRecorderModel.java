@@ -157,7 +157,7 @@ public class AudioRecorderModel extends BaseObservable {
 			setIcon(R.drawable.aar_ic_pause);
 		} else {
 			setStatusText("Finish");
-			setIcon(R.drawable.aar_ic_rec);
+			setIcon(R.drawable.aar_ic_restart);
 		}
 		notifyPropertyChanged(BR.recording);
 	}

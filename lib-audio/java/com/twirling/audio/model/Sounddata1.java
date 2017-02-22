@@ -1,7 +1,5 @@
 package com.twirling.audio.model;
 
-import android.util.Log;
-
 /**
  * Created by xieqi on 2017/2/15.
  */
@@ -29,36 +27,43 @@ public class Sounddata1 {
 	private short[] spkCircleBuf = null;
 	private int numberOfShortsRead = 0;
 	private boolean firstFlag = true;
+
 	public void release() {
+		wpt = 0;
+		rpt = 0;
+		spkCircleBuf = null;
 		instance = null;
 	}
 
 	public void setSpkCircleBuf(short[] src) {
-		System.arraycopy(src, 0, spkCircleBuf, wpt, src.length);
-		wpt += FRAMESIZE;
-		if (wpt >= FRAMESIZE * MAXFRAMES) {
-			wpt = 0;
+		try {
+			System.arraycopy(src, 0, spkCircleBuf, wpt, src.length);
+			wpt += FRAMESIZE;
+			if (wpt >= FRAMESIZE * MAXFRAMES) {
+				wpt = 0;
+			}
+		} catch (Exception e) {
 		}
 	}
 
 	public void getSpkCircleBuf(short[] src) {
-
-		if(firstFlag == true)
-		{
-			if(wpt<=0)
-			{
-				return;
+		try {
+			if (firstFlag == true) {
+				if (wpt <= 0) {
+					return;
+				}
+				firstFlag = false;
+				rpt = wpt - FRAMESIZE;
+				if (rpt < 0) rpt += FRAMESIZE * MAXFRAMES;
 			}
-			firstFlag = false;
-			rpt = wpt - FRAMESIZE;
-			if(rpt<0) rpt += FRAMESIZE * MAXFRAMES;
+			System.arraycopy(spkCircleBuf, rpt, src, 0, src.length);
+			rpt += FRAMESIZE;
+			if (rpt >= FRAMESIZE * MAXFRAMES) {
+				rpt = 0;
+			}
+		} catch (Exception e) {
 		}
-		System.arraycopy(spkCircleBuf, rpt, src, 0, src.length);
-		rpt += FRAMESIZE;
-		if (rpt >= FRAMESIZE * MAXFRAMES) {
-			rpt = 0;
-		}
-		Log.w("wpt_rpt", wpt + ", " + rpt);
+//		Log.w("wpt_rpt", wpt + ", " + rpt);
 	}
 
 	public boolean isEmpty() {
@@ -80,6 +85,7 @@ public class Sounddata1 {
 		}
 		return buffer;
 	}
+
 	public int getWpt() {
 		return wpt;
 	}
