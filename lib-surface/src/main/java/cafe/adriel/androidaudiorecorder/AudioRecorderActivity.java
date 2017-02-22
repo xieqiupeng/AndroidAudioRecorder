@@ -353,7 +353,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (recorder != null) {
 				recorder.pauseRecording();
 			}
-
 			stopTimer();
 		}
 
@@ -464,10 +463,12 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				public void run() {
 					if (arModel.isRecording()) {
 						recorderSecondsElapsed++;
-						timerView.setText(Util.formatSeconds(recorderSecondsElapsed));
+						arModel.setTime(Util.formatSeconds(recorderSecondsElapsed));
+//						timerView.setText(Util.formatSeconds(recorderSecondsElapsed));
 					} else if (isPlaying()) {
 						playerSecondsElapsed++;
-						timerView.setText(Util.formatSeconds(playerSecondsElapsed));
+						arModel.setTime(Util.formatSeconds(recorderSecondsElapsed));
+//						timerView.setText(Util.formatSeconds(playerSecondsElapsed));
 					}
 				}
 			});

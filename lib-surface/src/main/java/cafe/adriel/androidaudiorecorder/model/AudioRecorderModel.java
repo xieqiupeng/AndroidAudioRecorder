@@ -123,6 +123,7 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setTime(String time) {
 		this.time = time;
+		notifyPropertyChanged(BR.time);
 	}
 
 	@Bindable
