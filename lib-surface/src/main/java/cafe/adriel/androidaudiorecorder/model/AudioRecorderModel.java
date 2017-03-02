@@ -17,6 +17,7 @@ public class AudioRecorderModel extends BaseObservable {
 	private boolean keepDisplayOn;
 	//
 	private String time = "00:00:00";
+	private String nls = "";
 	private int textColor = Color.WHITE;
 	private boolean status = false;
 	private String statusText = "Playing";
@@ -124,6 +125,16 @@ public class AudioRecorderModel extends BaseObservable {
 	public void setTime(String time) {
 		this.time = time;
 		notifyPropertyChanged(BR.time);
+	}
+
+	@Bindable
+	public String getNls() {
+		return nls;
+	}
+
+	public void setNls(String nls) {
+		this.nls = nls;
+		notifyPropertyChanged(BR.nls);
 	}
 
 	@Bindable

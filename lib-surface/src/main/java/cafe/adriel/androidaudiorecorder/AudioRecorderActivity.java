@@ -125,8 +125,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		playView = (ImageButton) findViewById(R.id.play);
 
 		contentLayout.addView(visualizerView, 0);
-		restartView.setVisibility(View.INVISIBLE);
-		playView.setVisibility(View.INVISIBLE);
 
 		if (Util.isBrightColor(arModel.getColor())) {
 			ContextCompat.getDrawable(this, R.drawable.aar_ic_clear)
@@ -236,12 +234,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			SurfaceModel.getInstance().setAnsTurnOn(!SurfaceModel.getInstance().isAnsTurnOn());
 		}
 
-//		private void selectAudio() {
-//			stopRecording();
-//			setResult(RESULT_OK);
-//			finish();
-//		}
-
 		public void toggleRecording(View v) {
 			if (arModel.isRecording()) {
 				stopRecording();
@@ -266,17 +258,26 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void togglePlaying(View v) {
-			pauseRecording();
-			Util.wait(100, new Runnable() {
-				@Override
-				public void run() {
-					if (isPlaying()) {
-						stopPlaying();
-					} else {
-						startPlaying();
-					}
-				}
-			});
+			if (arModel.isRecording()) {
+				stopRecording();
+			} else {
+				new RxPermissions(AudioRecorderActivity.this)
+						.request(Manifest.permission.RECORD_AUDIO,
+								Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribeOn(AndroidSchedulers.mainThread())
+						.subscribe(new Consumer<Boolean>() {
+							@Override
+							public void accept(Boolean grant) throws Exception {
+								if (grant) {
+									resumeRecording();
+								} else {
+									Toast.makeText(AudioRecorderActivity.this, "请打开权限", Toast.LENGTH_LONG).show();
+								}
+							}
+						});
+			}
+			arModel.setRecording(!arModel.isRecording());
 		}
 
 		public void restartRecording(View v) {
@@ -314,7 +315,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				arModel.setTime("00:00:00");
 				arModel.setSource(AudioSource.MIC);
 				arModel.setChannel(AudioChannel.MONO);
-				arModel.setSampleRate(AudioSampleRate.HZ_32000);
+				arModel.setSampleRate(AudioSampleRate.HZ_16000);
 				//
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),
@@ -378,14 +379,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		private void startPlaying() {
-			try {
-				player = new MediaPlayer();
-				player.setDataSource(arModel.getFilePath());
-				player.prepare();
-				player.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			try {
 				visualizerView.linkTo(DbmHandler.Factory.newVisualizerHandler(AudioRecorderActivity.this, player));
 				visualizerView.post(new Runnable() {

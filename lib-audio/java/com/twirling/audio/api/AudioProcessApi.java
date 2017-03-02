@@ -33,7 +33,7 @@ import java.nio.ByteOrder;
  */
 public class AudioProcessApi {
 
-	private AudioTrack audioplayer;
+	private AudioTrack audioTrack;
 	//
 	private int frameSize = Constants.FRAME_SIZE;
 	private int sampleRate = Constants.SAMPLE_RATE[Constants.SAMPLE_INDEX];
@@ -53,28 +53,44 @@ public class AudioProcessApi {
 
 	public void init() {
 
-
-
 	}
 
+	public void soundPlay(short[] sounddata) {
+		audioTrack.write(sounddata, 0, sounddata.length);
+	}
+
+	public void initAudioTrack() {
+		sampleRate = 32000;
+		int minBufSize = AudioTrack.getMinBufferSize(sampleRate,
+				AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT);
+		minbufsize = minBufSize;
+		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+				sampleRate,
+				AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT,
+				minBufSize,
+				AudioTrack.MODE_STREAM);
+//		audioTrack.setLoopPoints(0, totalnumberframes, 100);
+		audioTrack.play();
+	}
 
 	public void soundPlay() {
-
 		int i;
 		int n;
 		short[] sounddataFrame = new short[frameSize * iOutChan];
 		//
 		if (stopFlag != 1) {
-			if (audioplayer != null) {
+			if (audioTrack != null) {
 				for (i = 0; i < frameSize * iInChan; i++) {
 					sounddataFrame[i] = sounddata[pos + i];
 				}
 				Sounddata1.getInstance().setSpkCircleBuf(sounddataFrame);
 				for (i = 0; i < frameSize * iInChan; i++) {
-					sounddataFrame[i] = (short)(sounddataFrame[i]/4);
+					sounddataFrame[i] = (short) (sounddataFrame[i] / 4);
 				}
 				//  FileUtil.writeFileFromShort(sounddataFrame);
-				audioplayer.write(sounddataFrame, 0, frameSize * iOutChan);
+				audioTrack.write(sounddataFrame, 0, frameSize * iOutChan);
 				pos += frameSize * iInChan;
 				if (pos >= datasize / 2 - frameSize * iInChan) {
 					pos = 0;
@@ -85,13 +101,13 @@ public class AudioProcessApi {
 
 	public void stopPlay() {
 		Log.i("stopPlay!", "stopPlay");
-		if (audioplayer != null) {
-			if (audioplayer.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+		if (audioTrack != null) {
+			if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
 				stopFlag = 1;
 				//Sounddata1.getInstance().release();
-				audioplayer.stop();
-				audioplayer.release();
-				audioplayer = null;
+				audioTrack.stop();
+				audioTrack.release();
+				audioTrack = null;
 
 			}
 		}
@@ -194,27 +210,27 @@ public class AudioProcessApi {
 				int totalnumberframes = datasize / 2;
 
 				// create the audio track, load it, play it
-				//audioplayer = new AudioTrack(AudioManager.STREAM_MUSIC,44100,AudioFormat.CHANNEL_OUT_STEREO,AudioFormat.ENCODING_PCM_16BIT,datasize,AudioTrack.MODE_STATIC);
+				//audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,44100,AudioFormat.CHANNEL_OUT_STEREO,AudioFormat.ENCODING_PCM_16BIT,datasize,AudioTrack.MODE_STATIC);
 				int minBufSize = AudioTrack.getMinBufferSize(sampleRate,
 						AudioFormat.CHANNEL_OUT_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);
 				minbufsize = minBufSize;
 				Log.i("buffersize ", "buffersize = " + minBufSize);
-				audioplayer = new AudioTrack(AudioManager.STREAM_MUSIC,
+				audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
 						sampleRate,
 						AudioFormat.CHANNEL_OUT_MONO,
 						AudioFormat.ENCODING_PCM_16BIT,
 						minBufSize,
 						AudioTrack.MODE_STREAM);
-				audioplayer.setLoopPoints(0, totalnumberframes, 100);
+				audioTrack.setLoopPoints(0, totalnumberframes, 100);
 
 				// this will cause a seamless loop
 				tempfs.close();
 
-				//int bufsize = audioplayer.getBufferSizeInFrames();
+				//int bufsize = audioTrack.getBufferSizeInFrames();
 				//Log.w("getBufferSizeInFrames", bufsize + "");
 
-				audioplayer.play();
+				audioTrack.play();
 				return true;
 			}
 		} catch (Exception i) {
@@ -224,8 +240,7 @@ public class AudioProcessApi {
 		return false;
 	}
 
-	public int getPlayBufferSize()
-	{
+	public int getPlayBufferSize() {
 		return minbufsize;
 	}
 }
