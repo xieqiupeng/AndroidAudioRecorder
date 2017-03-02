@@ -56,6 +56,9 @@ public class FileUtil {
 	}
 
 	public static void writeWavHeader() {
+		if (file == null) {
+			return;
+		}
 		try {
 			wavFile = randomAccessFile(file);
 			long totalAudioLen = new FileInputStream(file).getChannel().size();

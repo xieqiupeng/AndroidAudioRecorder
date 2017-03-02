@@ -262,6 +262,9 @@ public interface PullTransport {
 						postPullEvent(audioChunk);
 					}
 				}
+				if (audioChunk.numberOfShortsRead <= 0) {
+					return;
+				}
 				realtimeDemo.hearByte(audioChunk.toBytes());
 				audioProcessApi.soundPlay(audioChunk.shorts);
 			}
