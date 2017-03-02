@@ -16,13 +16,12 @@
 package omrecorder;
 
 import android.media.AudioRecord;
-import android.media.audiofx.AcousticEchoCanceler;
-import android.os.Environment;
 import android.util.Log;
 
+import com.twirling.audio.api.AudioProcessApi;
 import com.twirling.audio.model.Sounddata1;
 import com.twirling.libaec.api.AudioAecApi;
-import com.twirling.audio.api.AudioProcessApi;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -87,9 +86,6 @@ public interface PullTransport {
 
 		@Override
 		public void stop() {
-
-
-
 			audioRecordSource.isEnableToBePulled(false);
 			audioRecordSource.audioRecorder().stop();
 		}
@@ -126,7 +122,6 @@ public interface PullTransport {
 	}
 
 	final class Default extends AbstractPullTransport {
-
 		private final WriteAction writeAction;
 		private final AudioChunk.Shorts audioChunk;
 		private final int FRAMESIZE = 512;
@@ -143,7 +138,7 @@ public interface PullTransport {
 				audioProcessApi.stopPlay();
 			}
 			if (audioAecApi != null) {
-				//audioAecApi.stopProcess();
+//				audioAecApi.stopProcess();
 			}
 			Sounddata1.getInstance().release();
 		}
@@ -159,7 +154,6 @@ public interface PullTransport {
 			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize / 2]);
 			Log.w("xqp", audioChunk.shorts.length + "");
 
-
 			audioProcessApi = new AudioProcessApi();
 			audioProcessApi.init();
 			audioProcessApi.LoadWavFile(fileName);
@@ -169,11 +163,6 @@ public interface PullTransport {
 			// 处理aec
 			audioAecApi = new AudioAecApi();
 			audioAecApi.init(sysdelayEst);
-			Log.w("sysdelay", sysdelayEst + "");
-		}
-
-		public Default(AudioSource audioRecordSource, WriteAction writeAction) {
-			this(audioRecordSource, null, writeAction);
 		}
 
 		public Default(AudioSource audioRecordSource,
@@ -183,32 +172,11 @@ public interface PullTransport {
 					new WriteAction.Default());
 		}
 
-		public Default(AudioSource audioRecordSource) {
-			this(audioRecordSource,
-					null,
-					new WriteAction.Default());
-		}
-
-		public byte[] toBytes(short[] shorts) {
-			int shortIndex, byteIndex;
-			byte[] buffer = new byte[shorts.length * 2];
-			shortIndex = byteIndex = 0;
-			for (; shortIndex != shorts.length; ) {
-				buffer[byteIndex] = (byte) (shorts[shortIndex] & 0x00FF);
-				buffer[byteIndex + 1] = (byte) ((shorts[shortIndex] & 0xFF00) >> 8);
-				++shortIndex;
-				byteIndex += 2;
-			}
-			return buffer;
-		}
-
 		@Override
 		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
 		                            OutputStream outputStream) throws IOException {
-
 			OutputStream outputStream1 = FileUtil.getOutputStream();
 			while (audioRecordSource.isEnableToBePulled()) {
-
 				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
 //				Log.w("num", audioChunk.numberOfShortsRead + ",  " + audioChunk.shorts.length);
 				//
@@ -217,7 +185,6 @@ public interface PullTransport {
 						postPullEvent(audioChunk);
 					}
 				}
-				//Log.w("123", Sounddata1.getInstance().spkCircleBuf.length + "");
 				try {
 					int n = 0;
 					int n2 = 0;
@@ -235,97 +202,25 @@ public interface PullTransport {
 							audioChunk.shorts[n2++] = aecInputMic[j];
 						}
 						writeAction.execute(toBytes(aecInputMic), outputStream);
-
 					}
-
 				} catch (Exception e) {
 					Log.w("", e.toString());
 				}
 			}
 		}
-	}
 
-	final class Noise extends AbstractPullTransport {
-
-		private final AudioChunk.Shorts audioChunk;
-		private final long silenceTimeThreshold;
-		private final Recorder.OnSilenceListener silenceListener;
-		private final WriteAction writeAction;
-		private long firstSilenceMoment = 0;
-		private int noiseRecordedAfterFirstSilenceThreshold = 0;
-
-		public Noise(AudioSource audioRecordSource,
-		             OnAudioChunkPulledListener onAudioChunkPulledListener, WriteAction writeAction,
-		             Recorder.OnSilenceListener silenceListener, long silenceTimeThreshold) {
-			super(audioRecordSource, onAudioChunkPulledListener);
-			this.writeAction = writeAction;
-			this.silenceListener = silenceListener;
-			this.silenceTimeThreshold = silenceTimeThreshold;
-			audioChunk = new AudioChunk.Shorts(new short[audioRecordSource.minimumBufferSize()]);
-		}
-
-		public Noise(AudioSource audioRecordSource,
-		             OnAudioChunkPulledListener onAudioChunkPulledListener,
-		             Recorder.OnSilenceListener silenceListener, long silenceTimeThreshold) {
-			this(audioRecordSource, onAudioChunkPulledListener, new WriteAction.Default(),
-					silenceListener, silenceTimeThreshold);
-		}
-
-		public Noise(AudioSource audioRecordSource, WriteAction writeAction,
-		             Recorder.OnSilenceListener silenceListener, long silenceTimeThreshold) {
-			this(audioRecordSource, null, writeAction, silenceListener, silenceTimeThreshold);
-		}
-
-		public Noise(AudioSource audioRecordSource, Recorder.OnSilenceListener silenceListener,
-		             long silenceTimeThreshold) {
-			this(audioRecordSource, null, new WriteAction.Default(), silenceListener,
-					silenceTimeThreshold);
-		}
-
-		public Noise(AudioSource audioRecordSource, Recorder.OnSilenceListener silenceListener) {
-			this(audioRecordSource, null, new WriteAction.Default(), silenceListener, 200);
-		}
-
-		public Noise(AudioSource audioRecordSource) {
-			this(audioRecordSource, null, new WriteAction.Default(), null, 200);
-		}
-
-		@Override
-		public void start(OutputStream outputStream) throws IOException {
-			final AudioRecord audioRecord = audioRecordSource.audioRecorder();
-			audioRecord.startRecording();
-			audioRecordSource.isEnableToBePulled(true);
-			while (audioRecordSource.isEnableToBePulled()) {
-				audioChunk.numberOfShortsRead =
-						audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
-				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
-					if (onAudioChunkPulledListener != null) {
-						postPullEvent(audioChunk);
-					}
-					if (audioChunk.peakIndex() > -1) {
-						writeAction.execute(audioChunk.toBytes(), outputStream);
-						firstSilenceMoment = 0;
-						noiseRecordedAfterFirstSilenceThreshold++;
-					} else {
-						if (firstSilenceMoment == 0) {
-							firstSilenceMoment = System.currentTimeMillis();
-						}
-						final long silenceTime = System.currentTimeMillis() - firstSilenceMoment;
-						if (firstSilenceMoment != 0 && silenceTime > this.silenceTimeThreshold) {
-							if (silenceTime > 1000) {
-								if (noiseRecordedAfterFirstSilenceThreshold >= 3) {
-									noiseRecordedAfterFirstSilenceThreshold = 0;
-									if (silenceListener != null) {
-										postSilenceEvent(silenceListener, silenceTime);
-									}
-								}
-							}
-						} else {
-							writeAction.execute(audioChunk.toBytes(), outputStream);
-						}
-					}
-				}
+		public byte[] toBytes(short[] shorts) {
+			int shortIndex, byteIndex;
+			byte[] buffer = new byte[shorts.length * 2];
+			shortIndex = byteIndex = 0;
+			for (; shortIndex != shorts.length; ) {
+				buffer[byteIndex] = (byte) (shorts[shortIndex] & 0x00FF);
+				buffer[byteIndex + 1] = (byte) ((shorts[shortIndex] & 0xFF00) >> 8);
+				++shortIndex;
+				byteIndex += 2;
 			}
+			return buffer;
 		}
+
 	}
 }

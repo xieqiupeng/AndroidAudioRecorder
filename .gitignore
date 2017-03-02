@@ -3,3 +3,4 @@ lib-aec/build/
 *.iml
 .gradle/
 build/
+*.log

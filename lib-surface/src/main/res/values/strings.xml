@@ -4,4 +4,6 @@
     <string name="aar_paused">Paused</string>
     <string name="aar_recording">Recording</string>
     <string name="aar_playing">Playing</string>
+    <string name="ans_turn_on">ANS TURN ON</string>
+    <string name="aec_turn_on">AEC TURN ON</string>
 </resources>

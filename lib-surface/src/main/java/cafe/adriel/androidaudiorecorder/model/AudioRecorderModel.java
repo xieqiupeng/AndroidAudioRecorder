@@ -8,22 +8,39 @@ import cafe.adriel.androidaudiorecorder.BR;
 import cafe.adriel.androidaudiorecorder.R;
 
 public class AudioRecorderModel extends BaseObservable {
-	private String filePath;
 	private AudioSource source = AudioSource.MIC;
 	private AudioChannel channel = AudioChannel.STEREO;
 	private AudioSampleRate sampleRate = AudioSampleRate.HZ_32000;
 	private int color;
 	private boolean autoStart;
 	private boolean keepDisplayOn;
+	private String filePath;
 	//
 	private String time = "00:00:00";
 	private String nls = "";
 	private int textColor = Color.WHITE;
-	private boolean status = false;
-	private String statusText = "Playing";
-	private boolean restart = false;
+	// false stop true playing
+	// 0 wait 1 recording 2 pause 3 playing 4 finish
+	private int status = 0;
 	private boolean recording = false;
-	private int icon = R.drawable.aar_ic_rec;
+	private boolean playing = false;
+	private boolean restart = false;
+	private final static String[] statusArray = {
+			"Waiting",
+			"Recording",
+			"Paused",
+			"Playing",
+			"Finish"
+	};
+	private final static int[] iconArray = {
+			R.drawable.aar_ic_rec,
+			R.drawable.aar_ic_pause,
+			R.drawable.aar_ic_play,
+			R.drawable.aar_ic_stop,
+			R.drawable.aar_ic_rec,
+	};
+	private String statusText = statusArray[0];
+	private int iconRecord = iconArray[0];
 
 	@Bindable
 	public String getStatusText() {
@@ -108,13 +125,13 @@ public class AudioRecorderModel extends BaseObservable {
 	}
 
 	@Bindable
-	public int getIcon() {
-		return icon;
+	public int getIconRecord() {
+		return iconRecord;
 	}
 
-	public void setIcon(int icon) {
-		this.icon = icon;
-		notifyPropertyChanged(BR.icon);
+	public void setIconRecord(int iconRecord) {
+		this.iconRecord = iconRecord;
+		notifyPropertyChanged(BR.iconRecord);
 	}
 
 	@Bindable
@@ -138,15 +155,6 @@ public class AudioRecorderModel extends BaseObservable {
 	}
 
 	@Bindable
-	public boolean isStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
-	}
-
-	@Bindable
 	public boolean isRestart() {
 		return restart;
 	}
@@ -164,12 +172,27 @@ public class AudioRecorderModel extends BaseObservable {
 	public void setRecording(boolean recording) {
 		this.recording = recording;
 		if (recording) {
-			setStatusText("Recording");
-			setIcon(R.drawable.aar_ic_pause);
+			setStatus(1);
 		} else {
-			setStatusText("Finish");
-			setIcon(R.drawable.aar_ic_rec);
+			setStatus(5);
 		}
 		notifyPropertyChanged(BR.recording);
 	}
+
+	@Bindable
+	public boolean isPlaying() {
+		return playing;
+	}
+
+	public void setPlaying(boolean playing) {
+		this.playing = playing;
+		setStatus(4);
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+		setStatusText(statusArray[status]);
+		setIconRecord(iconArray[status]);
+	}
+
 }

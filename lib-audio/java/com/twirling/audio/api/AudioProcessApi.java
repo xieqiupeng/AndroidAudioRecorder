@@ -210,7 +210,12 @@ public class AudioProcessApi {
 				int totalnumberframes = datasize / 2;
 
 				// create the audio track, load it, play it
-				//audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,44100,AudioFormat.CHANNEL_OUT_STEREO,AudioFormat.ENCODING_PCM_16BIT,datasize,AudioTrack.MODE_STATIC);
+//				audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+//						44100,
+//						AudioFormat.CHANNEL_OUT_STEREO,
+//						AudioFormat.ENCODING_PCM_16BIT,
+//						datasize,
+//						AudioTrack.MODE_STATIC);
 				int minBufSize = AudioTrack.getMinBufferSize(sampleRate,
 						AudioFormat.CHANNEL_OUT_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);

@@ -88,7 +88,7 @@
                 android:checked="@{item2.aecTurnOn}"
                 android:onClick="@{(v)-> presenter.toggleAECTurnOn(v)}"
                 android:padding="30dp"
-                android:text="AEC TURN ON"
+                android:text="@string/aec_turn_on"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@android:color/white"/>
 
@@ -100,7 +100,7 @@
                 android:enabled="@{item2.aecTurnOn}"
                 android:onClick="@{(v)-> presenter.toggleANSTurnOn(v)}"
                 android:padding="30dp"
-                android:text="ANS TURN ON"
+                android:text="@string/ans_turn_on"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="@android:color/white"/>
 
@@ -130,10 +130,10 @@
                     android:contentDescription="@null"
                     android:onClick="@{(v)->presenter.toggleRecording(v)}"
                     android:scaleType="fitCenter"
-                    app:icon="@{item.icon}"/>
+                    app:iconRecord="@{item.iconRecord}"/>
 
                 <ImageButton
-                    android:id="@+id/play"
+                    android:id="@+id/playing"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="100dp"
                     android:layout_height="100dp"

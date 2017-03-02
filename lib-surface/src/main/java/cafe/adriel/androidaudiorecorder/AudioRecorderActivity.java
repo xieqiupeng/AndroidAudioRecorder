@@ -258,7 +258,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 		}
 
 		public void togglePlaying(View v) {
-			if (arModel.isRecording()) {
+			if (arModel.isPlaying()) {
 				stopRecording();
 			} else {
 				new RxPermissions(AudioRecorderActivity.this)
@@ -315,7 +315,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				arModel.setTime("00:00:00");
 				arModel.setSource(AudioSource.MIC);
 				arModel.setChannel(AudioChannel.MONO);
-				arModel.setSampleRate(AudioSampleRate.HZ_16000);
+				arModel.setSampleRate(AudioSampleRate.HZ_32000);
 				//
 				pullTransport = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),
@@ -341,7 +341,6 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			}
 			statusView.setText(R.string.aar_paused);
 			statusView.setVisibility(View.VISIBLE);
-			restartView.setVisibility(View.VISIBLE);
 			playView.setVisibility(View.VISIBLE);
 			arModel.setRecording(false);
 			playView.setImageResource(R.drawable.aar_ic_play);
@@ -392,6 +391,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			}
 			try {
 				timerView.setText("00:00:00");
+//				arModel.setTextColor();
 				statusView.setText(R.string.aar_playing);
 				statusView.setVisibility(View.VISIBLE);
 				playView.setImageResource(R.drawable.aar_ic_stop);

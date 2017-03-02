@@ -82,8 +82,8 @@ public class AudioAecApi {
 	}
 
 	public void stopProcess() {
-		if(instance!=0) {
-			if(aecInst!=null) {
+		if (instance != 0) {
+			if (aecInst != null) {
 				aecInst.aecRelease(instance);
 				aecInst = null;
 			}
