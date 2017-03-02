@@ -52,11 +52,12 @@ public class AudioProcessApi {
 	private int minbufsize = 0;
 
 	public void init() {
-
 	}
 
 	public void soundPlay(short[] sounddata) {
-		audioTrack.write(sounddata, 0, sounddata.length);
+		if (audioTrack != null) {
+			audioTrack.write(sounddata, 0, sounddata.length);
+		}
 	}
 
 	public void initAudioTrack() {

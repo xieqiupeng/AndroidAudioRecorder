@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import omrecorder.widget.FileUtil;
+import omrecorder.widget.RealtimeDemo;
 
 /**
  * A PullTransport is a object who pulls the data from {@code AudioSource} and transport it to
@@ -221,6 +222,49 @@ public interface PullTransport {
 			}
 			return buffer;
 		}
+	}
 
+	final class Realtime extends PullTransport.AbstractPullTransport {
+		private final WriteAction writeAction;
+		private final AudioChunk.Shorts audioChunk;
+		private int recordFrameSize = 0;
+		private AudioProcessApi audioProcessApi;
+		private RealtimeDemo realtimeDemo;
+
+		public Realtime(AudioSource audioRecordSource,
+		                OnAudioChunkPulledListener onAudioChunkPulledListener) {
+			super(audioRecordSource, onAudioChunkPulledListener);
+			this.writeAction = new WriteAction.Default();
+			recordFrameSize = audioRecordSource.minimumBufferSize();
+			audioChunk = new AudioChunk.Shorts(new short[recordFrameSize]);
+			audioProcessApi = new AudioProcessApi();
+			audioProcessApi.initAudioTrack();
+			//
+			realtimeDemo = new RealtimeDemo();
+			realtimeDemo.start();
+		}
+
+		public void stopProcess() {
+			if (audioProcessApi != null) {
+				audioProcessApi.stopPlay();
+			}
+			Sounddata1.getInstance().release();
+		}
+
+		@Override
+		void startPoolingAndWriting(AudioRecord audioRecord, int minimumBufferSize,
+		                            OutputStream outputStream) throws IOException {
+			while (audioRecordSource.isEnableToBePulled()) {
+				audioChunk.numberOfShortsRead = audioRecord.read(audioChunk.shorts, 0, audioChunk.shorts.length);
+				//
+				if (AudioRecord.ERROR_INVALID_OPERATION != audioChunk.numberOfShortsRead) {
+					if (onAudioChunkPulledListener != null) {
+						postPullEvent(audioChunk);
+					}
+				}
+				realtimeDemo.hearByte(audioChunk.toBytes());
+				audioProcessApi.soundPlay(audioChunk.shorts);
+			}
+		}
 	}
 }

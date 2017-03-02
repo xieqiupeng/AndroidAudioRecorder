@@ -42,6 +42,8 @@ public class AudioRecorderModel extends BaseObservable {
 	private String statusText = statusArray[0];
 	private int iconRecord = iconArray[0];
 
+	private int iconPlay = iconArray[2];
+
 	@Bindable
 	public String getStatusText() {
 		return statusText;
@@ -173,8 +175,10 @@ public class AudioRecorderModel extends BaseObservable {
 		this.recording = recording;
 		if (recording) {
 			setStatus(1);
+			setIconRecord(iconArray[status]);
 		} else {
-			setStatus(5);
+			setStatus(4);
+			setIconRecord(iconArray[status]);
 		}
 		notifyPropertyChanged(BR.recording);
 	}
@@ -186,13 +190,28 @@ public class AudioRecorderModel extends BaseObservable {
 
 	public void setPlaying(boolean playing) {
 		this.playing = playing;
-		setStatus(4);
+		if (playing) {
+			setStatus(3);
+			setIconPlay(iconArray[status]);
+		} else {
+			setStatus(4);
+			setIconPlay(iconArray[status]);
+		}
+		notifyPropertyChanged(BR.playing);
 	}
 
 	public void setStatus(int status) {
 		this.status = status;
 		setStatusText(statusArray[status]);
-		setIconRecord(iconArray[status]);
 	}
 
+	@Bindable
+	public int getIconPlay() {
+		return iconPlay;
+	}
+
+	public void setIconPlay(int iconPlay) {
+		this.iconPlay = iconPlay;
+		notifyPropertyChanged(BR.iconPlay);
+	}
 }

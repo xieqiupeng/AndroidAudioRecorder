@@ -140,7 +140,7 @@
                     android:contentDescription="@null"
                     android:onClick="@{(v)->presenter.togglePlaying(v)}"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/aar_ic_play"/>
+                    app:icon="@{item.iconPlay}"/>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
