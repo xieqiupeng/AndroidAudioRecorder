@@ -371,7 +371,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 			if (recorder == null) {
 				arModel.setTime("00:00:00");
 				arModel.setSource(AudioSource.MIC);
-				arModel.setChannel(AudioChannel.MONO);
+				arModel.setChannel(AudioChannel.STEREO);
 				arModel.setSampleRate(AudioSampleRate.HZ_16000);
 				//
 				ptsr = new PullTransport.Realtime(
@@ -386,7 +386,8 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 							}
 						}
 				);
-				recorder = OmRecorder.wav(ptsr, new File(arModel.getFilePath()));
+				String PATH = "sdcard/Music/audio_720.wav";
+				recorder = OmRecorder.wav(ptsr, new File(PATH));
 			}
 			//
 			recorder.resumeRecording();
