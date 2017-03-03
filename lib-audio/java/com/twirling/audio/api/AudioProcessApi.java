@@ -61,7 +61,7 @@ public class AudioProcessApi {
 	}
 
 	public void initAudioTrack() {
-		sampleRate = 32000;
+		sampleRate = 16000;
 		int minBufSize = AudioTrack.getMinBufferSize(sampleRate,
 				AudioFormat.CHANNEL_OUT_MONO,
 				AudioFormat.ENCODING_PCM_16BIT);

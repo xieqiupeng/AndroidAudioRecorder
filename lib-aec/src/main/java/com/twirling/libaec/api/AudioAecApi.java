@@ -26,7 +26,7 @@ public class AudioAecApi {
 	//
 	private VoiceProcessing aecInst;
 	private static final int FRAME_SIZE = 256;
-	private static final int SAMPLE_RATE = 32000;
+	private static final int SAMPLE_RATE = 16000;
 	private static final int iInChan = 1;
 	private static final int iOutChan = 1;
 	private long instance = 0;

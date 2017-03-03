@@ -28,16 +28,16 @@ public class AudioRecorderModel extends BaseObservable {
 	private final static String[] statusArray = {
 			"Waiting",
 			"Recording",
-			"Paused",
 			"Playing",
+			"Paused",
 			"Finish"
 	};
 	private final static int[] iconArray = {
 			R.drawable.aar_ic_rec,
 			R.drawable.aar_ic_pause,
 			R.drawable.aar_ic_play,
-			R.drawable.aar_ic_stop,
-			R.drawable.aar_ic_rec,
+			R.drawable.aar_ic_pause,
+			R.drawable.aar_ic_restart,
 	};
 	private String statusText = statusArray[0];
 	private int iconRecord = iconArray[0];
@@ -191,7 +191,7 @@ public class AudioRecorderModel extends BaseObservable {
 	public void setPlaying(boolean playing) {
 		this.playing = playing;
 		if (playing) {
-			setStatus(3);
+			setStatus(2);
 			setIconPlay(iconArray[status]);
 		} else {
 			setStatus(4);

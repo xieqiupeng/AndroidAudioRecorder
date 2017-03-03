@@ -12,16 +12,20 @@ buildscript {
                     libRxJava : "2.0.1"]
     }
     repositories {
+        mavenCentral()
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
+//        classpath 'org.apache.maven.plugins:maven-compiler-plugin:1.6'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        mavenCentral()
         maven { url "https://jitpack.io" }
     }
 }

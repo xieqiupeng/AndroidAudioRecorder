@@ -305,7 +305,7 @@ public class AudioRecorderActivity extends AppCompatActivity implements MediaPla
 				arModel.setTime("00:00:00");
 				arModel.setSource(AudioSource.MIC);
 				arModel.setChannel(AudioChannel.MONO);
-				arModel.setSampleRate(AudioSampleRate.HZ_32000);
+				arModel.setSampleRate(AudioSampleRate.HZ_16000);
 				//
 				ptsd = new PullTransport.Default(
 						Util.getMic(arModel.getSource(), arModel.getChannel(), arModel.getSampleRate()),

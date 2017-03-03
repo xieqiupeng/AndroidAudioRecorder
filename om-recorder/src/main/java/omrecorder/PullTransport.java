@@ -248,6 +248,7 @@ public interface PullTransport {
 			if (audioProcessApi != null) {
 				audioProcessApi.stopPlay();
 			}
+			realtimeDemo.shutDown();
 			Sounddata1.getInstance().release();
 		}
 
@@ -265,7 +266,8 @@ public interface PullTransport {
 				if (audioChunk.numberOfShortsRead <= 0) {
 					return;
 				}
-				realtimeDemo.hearByte(audioChunk.toBytes());
+				realtimeDemo.hearIt();
+//				realtimeDemo.hearByte(audioChunk.toBytes());
 				audioProcessApi.soundPlay(audioChunk.shorts);
 			}
 		}
